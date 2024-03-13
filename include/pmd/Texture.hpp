@@ -19,7 +19,13 @@ namespace PMD
         void access(std::function<void(::uint32_t *)> &&callback);
 
         void clear(Color color = 0x00000000);
+        void clear(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff)
+        {
+            this->clear(fromRGBA(r, g, b, a));
+        }
+
         void blit(const Vector2u &position, const Texture &source);
+
         void negate();
 
     protected:

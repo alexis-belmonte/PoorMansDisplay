@@ -33,6 +33,7 @@ namespace PMD
         this->_controller.setCanonical(false);
 
         this->sendCommand(EscapeSequence::FLIP_SCREEN_ALTERNATE);
+        this->sendCommand(EscapeSequence::HIDE_CURSOR_CARET);
         this->sendCommand(EscapeSequence::CLEAR_SCREEN);
         this->sendCommand(EscapeSequence::SET_CURSOR_HOME);
         
@@ -52,7 +53,7 @@ namespace PMD
         if (::ioctl(this->_fd, TIOCGWINSZ, &size) != 0)
             throw std::runtime_error("Failed to get terminal size");
 
-        return Vector2u(size.ws_col, size.ws_row);
+        return Vector2u(size.ws_col + 1, size.ws_row + 1);
     }
     
     void Display::sendCommand(const std::string &command) const
@@ -104,11 +105,12 @@ namespace PMD
     void Display::update()
     {
         std::string feedback = this->getFeedback();
-        
+
         if (feedback.empty())
             return;
 
-        // TODO: Manage terminal resize
+        // TODO: Manage feedback
+        // TODO: Implement framebuffer update based on signal
     }
 
     void Display::present()
