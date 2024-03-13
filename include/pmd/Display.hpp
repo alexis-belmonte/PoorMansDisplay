@@ -1,10 +1,12 @@
 #pragma once
 
 #include "pmd/DisplayController.hpp"
+#include "pmd/Texture.hpp"
 #include "pmd/Vector.hpp"
 
 #include <string>
 #include <fstream>
+#include <memory>
 
 namespace PMD
 {
@@ -17,14 +19,24 @@ namespace PMD
         Vector2u getSize() const;
 
     protected:
+        void sendCommand(const std::string &feedback) const;
         std::string getFeedback() const;
 
-        Vector2u getCursorPosition() const;
-        void setCursorPosition(const Vector2u &position);
+        void resizeFramebuffer(Vector2u newSize);
+        void resizeFramebuffer();
+
+    public:
+        Texture &getFramebuffer();
+
+        void update();
+        void present();
 
     protected:
         int _fd;
-
         DisplayController _controller;
+ 
+        Vector2u _lastSize;
+        std::unique_ptr<Texture> _framebuffer;
+        std::unique_ptr<Texture> _framebufferUpdateMask;
     };
 };
