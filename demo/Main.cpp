@@ -9,28 +9,18 @@ int main(void)
 {
     PMD::Display display;
     PMD::Texture &framebuffer = display.getFramebuffer();
+    PMD::Vector2u size = framebuffer.getSize();
 
-    PMD::Texture myTexture({10, 10});
-    myTexture.clear(0xff0e24e1);
+    PMD::Texture myTexture({35, 17});
+    PMD::Vector2u textSize = myTexture.getSize();
+    myTexture.clear(::rand());
 
-    /*
-    for (int i = 0; i < 32; i++) {
-        myTexture.clear(
-            (0xff             << 24) |
-            (((16 + i * 4) % 256) << 16) |
-            (((32 + i * 4) % 256) <<  8) |
-            (((48 + i * 4) % 256) <<  0)
-        );
-        framebuffer.blit({i, i}, myTexture);
-    }
-    */
-
-    size_t x = 0;
-    size_t y = 0;
+    size_t x = ::rand() % (std::get<0>(size) - std::get<0>(textSize));
+    size_t y = ::rand() % (std::get<1>(size) - std::get<1>(textSize));
     size_t xd = 1;
     size_t yd = 1;
 
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < 1000; i++) {
         display.update();
 
         /*
@@ -48,22 +38,28 @@ int main(void)
         });
         */
 
-        PMD::Vector2u size = framebuffer.getSize();
-        PMD::Vector2u textSize = myTexture.getSize();
+        bool hasMovedDirection = false;
 
-        if (x + xd > std::get<0>(size) - std::get<0>(textSize) || x + xd < 0)
+        if (x + xd > std::get<0>(size) - std::get<0>(textSize) || x + xd < 0) {
             xd = -xd;
-        if (y + yd > std::get<1>(size) - std::get<0>(textSize) || y + yd < 0)
+            hasMovedDirection = true;
+        }
+        if (y + yd > std::get<1>(size) - std::get<1>(textSize) || y + yd < 0) {
             yd = -yd;
+            hasMovedDirection = true;
+        }
+
+        if (hasMovedDirection)
+            myTexture.clear(::rand());
 
         x += xd;
         y += yd;
 
-        framebuffer.clear(0xff005000);
+        framebuffer.clear(0xff000000);
         framebuffer.blit({x, y}, myTexture);
 
         display.present();
 
-        ::usleep(8500);
+        ::usleep(15000);
     }
 }
