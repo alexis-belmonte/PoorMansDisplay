@@ -35,8 +35,8 @@ namespace PMD
             Vector2u size = this->getSize();
             Vector2u sourceSize = source.getSize();
 
-            for (::size_t y = 0; y < std::get<1>(sourceSize); y++)
-                for (::size_t x = 0; x < std::get<0>(sourceSize); x++)
+            for (::size_t y = 0; y < std::get<1>(sourceSize) && std::get<1>(position) + y < std::get<1>(size); y++)
+                for (::size_t x = 0; x < std::get<0>(sourceSize) && std::get<0>(position) + x < std::get<0>(size); x++)
                     contents[(std::get<0>(position) + x) + (std::get<0>(size) * (std::get<1>(position) + y))] = source._contents[x + (std::get<0>(sourceSize) * y)];
         });
     }

@@ -42,6 +42,7 @@ namespace PMD
 
     Display::~Display()
     {
+        this->sendCommand(EscapeSequence::RESET_TERMINAL);
         this->sendCommand(EscapeSequence::FLIP_SCREEN_NORMAL);
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
     }
