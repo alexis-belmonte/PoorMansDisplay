@@ -6,6 +6,10 @@ namespace PMD
         _size(size),
         _contents(new Color[std::get<0>(size) * std::get<1>(size)])
     {}
+
+    Texture::Texture(::size_t width, ::size_t height) :
+        Texture(Vector2u{width, height})
+    {}
     
     const Vector2u &Texture::getSize() const
     {

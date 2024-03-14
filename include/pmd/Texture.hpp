@@ -13,6 +13,7 @@ namespace PMD
     {
     public:
         Texture(const Vector2u &size);
+        Texture(::size_t width, ::size_t height);
 
         const Vector2u &getSize() const;
 
