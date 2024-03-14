@@ -55,7 +55,7 @@ int main(void)
         x += xd;
         y += yd;
     
-        framebuffer.clear(0xff000000);
+        framebuffer.clear(0, 0, 0, 255);
         framebuffer.blit({x, y}, myTexture);
         display.present();
 

@@ -29,6 +29,8 @@ namespace PMD
 
         void negate();
 
+        // TODO: Add line/rectangle/circle/polygon drawing methods
+
     protected:
         Vector2u _size;
         Color *_contents = nullptr;

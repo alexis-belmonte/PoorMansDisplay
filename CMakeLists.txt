@@ -6,6 +6,9 @@ project(
     LANGUAGES   CXX
 )
 
+find_package(PNG REQUIRED)
+find_package(JPEG REQUIRED)
+
 set(CMAKE_CXX_STANDARD 20)
 
 set(PMD_SOURCE_DIR  ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -21,6 +24,7 @@ set_target_properties(
     PROPERTIES
     OUTPUT_NAME "poormansdisplay"
 )
+target_link_libraries(PoorMansDisplay PNG::PNG JPEG::JPEG)
 
 file(GLOB_RECURSE PMD_DEMO_FILES ${PMD_DEMO_DIR}/*.cpp)
 add_executable(demo ${PMD_DEMO_FILES})
