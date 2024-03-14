@@ -1,18 +1,38 @@
 #pragma once
 
+#include <bit>
+
 #include <cstdint>
 
 namespace PMD
 {
-    using Color = ::uint32_t;
+    union Color {
+        /* Components */
+        struct {
+            uint8_t a;
+            uint8_t r;
+            uint8_t g;
+            uint8_t b;
+        } __attribute__((packed)) c;
+        /* Value */
+        uint32_t v;
 
-    inline Color fromRGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
-    {
-        return (a << 24) | (r << 16) | (g << 8) | b;
-    }
+        Color() :
+            v(0)
+        {}
 
-    inline Color fromRGB(uint8_t r, uint8_t g, uint8_t b)
-    {
-        return fromRGBA(r, g, b, 0xff);
-    }
+        Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff) :
+            c{a, r, g, b}
+        {}
+
+        Color(uint32_t color)
+        {
+            this->c = {
+                static_cast<uint8_t>((color >> 24) & 0xff),
+                static_cast<uint8_t>((color >> 16) & 0xff),
+                static_cast<uint8_t>((color >>  8) & 0xff),
+                static_cast<uint8_t>((color >>  0) & 0xff)
+            };
+        }
+    } __attribute__((packed));
 };

@@ -10,7 +10,7 @@ int main(void)
     PMD::Display display;
     PMD::Texture &framebuffer = display.getFramebuffer();
     PMD::Vector2u size = framebuffer.getSize();
-
+    
     PMD::Texture myTexture({35, 17});
     PMD::Vector2u textSize = myTexture.getSize();
     myTexture.clear(::rand());
@@ -18,7 +18,7 @@ int main(void)
     size_t x = ::rand() % (std::get<0>(size) - std::get<0>(textSize));
     size_t y = ::rand() % (std::get<1>(size) - std::get<1>(textSize));
     size_t xd = 1;
-    size_t yd = 1;
+    size_t yd = 1; 
 
     for (int i = 0; i < 1000; i++) {
         display.update();
@@ -54,10 +54,9 @@ int main(void)
 
         x += xd;
         y += yd;
-
+    
         framebuffer.clear(0xff000000);
         framebuffer.blit({x, y}, myTexture);
-
         display.present();
 
         ::usleep(15000);

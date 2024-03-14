@@ -16,12 +16,13 @@ namespace PMD
 
         const Vector2u &getSize() const;
 
-        void access(std::function<void(::uint32_t *)> &&callback);
+        void access(std::function<void(Color *)> &&callback);
+        void access(std::function<void(const Color *)> &&callback) const;
 
         void clear(Color color = 0x00000000);
         void clear(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 0xff)
         {
-            this->clear(fromRGBA(r, g, b, a));
+            this->clear(Color(r, g, b, a));
         }
 
         void blit(const Vector2u &position, const Texture &source);
@@ -30,6 +31,6 @@ namespace PMD
 
     protected:
         Vector2u _size;
-        ::uint32_t *_contents = nullptr;
+        Color *_contents = nullptr;
     };
 };

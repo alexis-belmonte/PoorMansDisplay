@@ -118,8 +118,8 @@ namespace PMD
     {
         std::stringstream commandStream;
 
-        this->_framebufferUpdateMask->access([this, &commandStream](::uint32_t *mask) {
-            this->_framebuffer->access([this, mask, &commandStream](::uint32_t *contents) {
+        this->_framebufferUpdateMask->access([this, &commandStream](Color *mask) {
+            this->_framebuffer->access([this, mask, &commandStream](Color *contents) {
                 Vector2u size = this->_framebuffer->getSize();
                 Vector2u currPos{~0, ~0};
 
@@ -128,7 +128,7 @@ namespace PMD
                         size_t i1 =  y      * std::get<0>(size) + x;
                         size_t i2 = (y + 1) * std::get<0>(size) + x;
 
-                        if (!(mask[i1] ^ contents[i1]) && !(mask[i2] ^ contents[i2]))
+                        if (!(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))
                             continue;
 
                         if (std::get<0>(currPos) != x || std::get<1>(currPos) != y) {
@@ -137,13 +137,13 @@ namespace PMD
                         }
 
                         commandStream << std::format(EscapeSequence::SET_RGB_FGCOLOR,
-                                             ((contents[i1] >> 16) & 0xff),
-                                             ((contents[i1] >>  8) & 0xff),
-                                             ((contents[i1]      ) & 0xff))
+                                             contents[i1].c.r,
+                                             contents[i1].c.g,
+                                             contents[i1].c.b)
                                       << std::format(EscapeSequence::SET_RGB_BGCOLOR,
-                                             ((contents[i2] >> 16) & 0xff),
-                                             ((contents[i2] >>  8) & 0xff),
-                                             ((contents[i2]      ) & 0xff))
+                                             contents[i2].c.r,
+                                             contents[i2].c.g,
+                                             contents[i2].c.b)
                                       << "▀";
                         
                         currPos = {std::get<0>(currPos) + 1, std::get<1>(currPos)};
