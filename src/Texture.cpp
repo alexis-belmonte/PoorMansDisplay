@@ -36,6 +36,27 @@ namespace PMD
         });
     }
 
+    void Texture::copy(const Vector2u &position, const Texture &source)
+    {
+        this->access([this, position, source](Color *targetContents) {
+            Vector2u targetSize = this->getSize();
+            Vector2u sourceSize = source.getSize();
+
+            source.access([position, &targetSize, &sourceSize, targetContents](const Color *sourceContents) {
+                for (::size_t y = 0; y < PMD::y(sourceSize) && PMD::y(position) + y < PMD::y(targetSize); y++)
+                    for (::size_t x = 0; x < PMD::x(sourceSize) && PMD::x(position) + x < PMD::x(targetSize); x++) {
+                        size_t sourceI =
+                            y * PMD::x(sourceSize) + x;
+                        size_t targetI =
+                            (PMD::x(position) + x) +
+                            (PMD::x(targetSize) * (PMD::y(position) + y));
+
+                        targetContents[targetI] = sourceContents[sourceI];
+                    }
+            });
+        });
+    }
+
     void Texture::blit(const Vector2u &position, const Texture &source)
     {
         this->access([this, position, source](Color *targetContents) {

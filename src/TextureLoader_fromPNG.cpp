@@ -64,17 +64,6 @@ namespace PMD
 
         ::png_destroy_read_struct(&pngPtr, &pngInfoPtr, &pngEndInfoPtr);
 
-        if constexpr (std::endian::native == std::endian::little) {
-            pngTexture.access([pngWidth, pngHeight](PMD::Color *contents) {
-                for (::size_t i = 0; i < pngWidth * pngHeight; i++) {
-                    contents[i].v = contents[i].c.a << 24 |
-                                    contents[i].c.r << 16 |
-                                    contents[i].c.g <<  8 |
-                                    contents[i].c.b;
-                }
-            });
-        }
-
         return pngTexture;
     }
 };

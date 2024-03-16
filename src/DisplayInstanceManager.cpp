@@ -15,7 +15,7 @@ namespace PMD
         {
             DisplayInstanceManager::foreach([](Display *display)
             {
-                display->resizeFramebuffer();
+                display->requestFramebufferResize();
             });
         });
     }

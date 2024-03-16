@@ -29,6 +29,7 @@ namespace PMD
         void sendCommand(const std::string &feedback) const;
         std::string getFeedback() const;
 
+        void requestFramebufferResize();
         void resizeFramebuffer(Vector2u newSize);
         void resizeFramebuffer();
 
@@ -43,7 +44,8 @@ namespace PMD
         int _fd;
         DisplayController _controller;
  
-        Vector2u _lastSize;
+        Vector2u _lastFramebufferSize;
+        bool _framebufferResizeRequested = false;
         std::unique_ptr<Texture> _framebuffer;
         std::unique_ptr<Texture> _framebufferUpdateMask;
 

@@ -88,9 +88,14 @@ namespace PMD
         return std::string(buffer, available);
     }
 
+    void Display::requestFramebufferResize()
+    {
+        this->_framebufferResizeRequested = true;
+    }
+
     void Display::resizeFramebuffer(Vector2u newSize)
     {
-        if (newSize == this->_lastSize)
+        if (newSize == this->_lastFramebufferSize)
             return;
 
         this->_framebuffer           = std::make_unique<Texture>(newSize);
@@ -98,7 +103,7 @@ namespace PMD
 
         this->_framebufferUpdateMask->negate();
 
-        this->_lastSize = newSize;
+        this->_lastFramebufferSize = newSize;
 
         this->_eventQueue.push<DisplayResizeEvent>(newSize);
     }
@@ -124,13 +129,21 @@ namespace PMD
 
     void Display::update()
     {
+        if (this->_framebufferResizeRequested) {
+            Vector2u termSize = this->getSize();
+            if (termSize == this->_lastFramebufferSize)
+                return;
+
+            this->resizeFramebuffer();
+            this->_framebufferResizeRequested = false;
+        }
+
         std::string feedback = this->getFeedback();
 
         if (feedback.empty())
             return;
 
         // TODO: Manage feedback
-        // TODO: Implement framebuffer update based on signal
     }
 
     void Display::present()
@@ -172,7 +185,7 @@ namespace PMD
             });
         });
 
-        this->_framebufferUpdateMask->blit(Vector2u{0, 0}, *this->_framebuffer);
+        this->_framebufferUpdateMask->copy(Vector2u{0, 0}, *this->_framebuffer);
 
         const std::string &command = commandStream.str();
         ::write(this->_fd, command.c_str(), command.size());
