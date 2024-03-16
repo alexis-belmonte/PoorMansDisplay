@@ -4,7 +4,7 @@ namespace PMD
 {
     Texture::Texture(const Vector2u &size) :
         _size(size),
-        _contents(new Color[std::get<0>(size) * std::get<1>(size)])
+        _contents(new Color[PMD::x(size) * PMD::y(size)])
     {}
 
     Texture::Texture(::size_t width, ::size_t height) :
@@ -31,7 +31,7 @@ namespace PMD
         this->access([this, color](Color *contents) {
             Vector2u size = this->getSize();
 
-            for (Color *it = contents; it < contents + std::get<0>(size) * std::get<1>(size); ++it)
+            for (Color *it = contents; it < contents + PMD::x(size) * PMD::y(size); ++it)
                 *it = color;
         });
     }
@@ -43,13 +43,13 @@ namespace PMD
             Vector2u sourceSize = source.getSize();
 
             source.access([position, &targetSize, &sourceSize, targetContents](const Color *sourceContents) {
-                for (::size_t y = 0; y < std::get<1>(sourceSize) && std::get<1>(position) + y < std::get<1>(targetSize); y++)
-                    for (::size_t x = 0; x < std::get<0>(sourceSize) && std::get<0>(position) + x < std::get<0>(targetSize); x++) {
+                for (::size_t y = 0; y < PMD::y(sourceSize) && PMD::y(position) + y < PMD::y(targetSize); y++)
+                    for (::size_t x = 0; x < PMD::x(sourceSize) && PMD::x(position) + x < PMD::x(targetSize); x++) {
                         size_t sourceI =
-                            y * std::get<0>(sourceSize) + x;
+                            y * PMD::x(sourceSize) + x;
                         size_t targetI =
-                            (std::get<0>(position) + x) +
-                            (std::get<0>(targetSize) * (std::get<1>(position) + y));
+                            (PMD::x(position) + x) +
+                            (PMD::x(targetSize) * (PMD::y(position) + y));
                         double alpha = sourceContents[sourceI].c.a / 255.0;
 
                         targetContents[targetI].c.r = targetContents[targetI].c.r * (1 - alpha) + sourceContents[sourceI].c.r * alpha;
@@ -64,7 +64,7 @@ namespace PMD
     {
         this->access([this](Color *contents) {
             Vector2u size = this->getSize();
-            for (::size_t i = 0; i < std::get<0>(size) * std::get<1>(size); i++)
+            for (::size_t i = 0; i < PMD::x(size) * PMD::y(size); i++)
                 contents[i].v = ~contents[i].v;
         });
     }

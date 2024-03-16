@@ -1,4 +1,7 @@
 #include "pmd/Display.hpp"
+
+#include "pmd/DisplayInstanceManager.hpp"
+
 #include "pmd/EscapeSequence.hpp"
 
 #include <format>
@@ -38,6 +41,8 @@ namespace PMD
         this->sendCommand(EscapeSequence::SET_CURSOR_HOME);
         
         this->resizeFramebuffer();
+
+        DisplayInstanceManager::add(this);
     }
 
     Display::~Display()
@@ -45,6 +50,8 @@ namespace PMD
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
         this->sendCommand(EscapeSequence::FLIP_SCREEN_NORMAL);
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
+
+        DisplayInstanceManager::remove(this);
     }
 
     Vector2u Display::getSize() const
@@ -83,10 +90,17 @@ namespace PMD
 
     void Display::resizeFramebuffer(Vector2u newSize)
     {
+        if (newSize == this->_lastSize)
+            return;
+
         this->_framebuffer           = std::make_unique<Texture>(newSize);
         this->_framebufferUpdateMask = std::make_unique<Texture>(newSize);
 
         this->_framebufferUpdateMask->negate();
+
+        this->_lastSize = newSize;
+
+        this->_eventQueue.push<DisplayResizeEvent>(newSize);
     }
     
     void Display::resizeFramebuffer()
@@ -98,9 +112,14 @@ namespace PMD
         );
     }
 
-    Texture &Display::getFramebuffer()
+    void Display::access(std::function<void(Texture &)> &&callback)
     {
-        return *this->_framebuffer;
+        callback(*this->_framebuffer);
+    }
+
+    EventQueue &Display::getEventQueue()
+    {
+        return this->_eventQueue;
     }
 
     void Display::update()

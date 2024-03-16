@@ -1,6 +1,11 @@
 #pragma once
 
 #include "pmd/DisplayController.hpp"
+#include "pmd/DisplayInstanceManager.hpp"
+
+#include "pmd/Event.hpp"
+#include "pmd/EventQueue.hpp"
+
 #include "pmd/Texture.hpp"
 #include "pmd/Vector.hpp"
 
@@ -12,6 +17,8 @@ namespace PMD
 {
     class Display
     {
+        friend class DisplayInstanceManager;
+
     public:
         Display(const std::string &target = "/dev/tty");
         ~Display();
@@ -26,7 +33,8 @@ namespace PMD
         void resizeFramebuffer();
 
     public:
-        Texture &getFramebuffer();
+        void access(std::function<void(Texture &)> &&callback);
+        EventQueue &getEventQueue();
 
         void update();
         void present();
@@ -38,5 +46,7 @@ namespace PMD
         Vector2u _lastSize;
         std::unique_ptr<Texture> _framebuffer;
         std::unique_ptr<Texture> _framebufferUpdateMask;
+
+        EventQueue _eventQueue;
     };
 };

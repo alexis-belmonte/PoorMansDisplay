@@ -13,7 +13,7 @@ static void setTextureColor(PMD::Texture &target, PMD::Texture &source, PMD::Col
 
     target.access([&source, color, size](PMD::Color *targetContents) {
         source.access([targetContents, color, size](PMD::Color *sourceContents) {
-            for (::size_t i = 0; i < std::get<0>(size) * std::get<1>(size); i++) {
+            for (::size_t i = 0; i < PMD::x(size) * PMD::y(size); i++) {
                 targetContents[i].c.a = sourceContents[i].c.a;
                 targetContents[i].c.r = sourceContents[i].c.r * 1.0 * color.c.r;
                 targetContents[i].c.g = sourceContents[i].c.g * 1.0 * color.c.g;
@@ -26,8 +26,7 @@ static void setTextureColor(PMD::Texture &target, PMD::Texture &source, PMD::Col
 int main(void)
 {
     PMD::Display  display;
-    PMD::Texture  &framebuffer = display.getFramebuffer();
-    PMD::Vector2u size = framebuffer.getSize();
+    PMD::Vector2u displaySize = display.getSize();
     
     PMD::Texture  dvdLogoTexture(PMD::TextureLoader::fromLocalStorage("./DVDLogo.png"));
     PMD::Vector2u dvdLogoSize = dvdLogoTexture.getSize();
@@ -36,21 +35,31 @@ int main(void)
 
     setTextureColor(dvdLogoColoredTexture, dvdLogoTexture, ::rand());
 
-    ::size_t x = ::rand() % (std::get<0>(size) - std::get<0>(dvdLogoSize));
-    ::size_t y = ::rand() % (std::get<1>(size) - std::get<1>(dvdLogoSize));
+    ::size_t x;
+    ::size_t y;
     ::size_t xd = 1;
     ::size_t yd = 1; 
 
     for (int i = 0; i < 1000; i++) {
         display.update();
 
+        display.getEventQueue().poll(
+            PMD::EventQueue::Handler<PMD::DisplayResizeEvent>(
+                [&x, &y, &displaySize, dvdLogoSize](const PMD::DisplayResizeEvent &event) mutable {
+                    x = ::rand() % (PMD::x(displaySize) - PMD::x(dvdLogoSize));
+                    y = ::rand() % (PMD::y(displaySize) - PMD::y(dvdLogoSize));
+                    displaySize = event.size;
+                }
+            )
+        );
+        
         bool hasMovedDirection = false;
 
-        if (x + xd > std::get<0>(size) - std::get<0>(dvdLogoSize) || x + xd <= 0) {
+        if (x + xd > PMD::x(displaySize) - PMD::x(dvdLogoSize) || x + xd <= 0) {
             xd = -xd;
             hasMovedDirection = true;
         }
-        if (y + yd > std::get<1>(size) - std::get<1>(dvdLogoSize) || y + yd <= 0) {
+        if (y + yd > PMD::y(displaySize) - PMD::y(dvdLogoSize) || y + yd <= 0) {
             yd = -yd;
             hasMovedDirection = true;
         }
@@ -60,9 +69,11 @@ int main(void)
 
         x += xd;
         y += yd;
-    
-        framebuffer.clear(0, 0, 0, 255);
-        framebuffer.blit({x, y}, dvdLogoColoredTexture);
+
+        display.access([x, y, &dvdLogoColoredTexture](PMD::Texture &framebuffer) {
+            framebuffer.clear(0, 0, 0, 255);
+            framebuffer.blit({x, y}, dvdLogoColoredTexture);
+        });
         display.present();
 
         ::usleep(15000);

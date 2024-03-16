@@ -4,6 +4,7 @@
 #include "pmd/Color.hpp"
 
 #include <functional>
+#include <mutex>
 
 #include <cstdint>
 
