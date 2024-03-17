@@ -40,15 +40,22 @@ int main(void)
     ::size_t xd = 1;
     ::size_t yd = 1; 
 
-    for (int i = 0; i < 1000; i++) {
+    bool running = true;
+
+    while (running) {
         display.update();
 
         display.getEventQueue().poll(
             PMD::EventQueue::Handler<PMD::DisplayResizeEvent>(
-                [&x, &y, &displaySize, dvdLogoSize](const PMD::DisplayResizeEvent &event) mutable {
+                [&x, &y, &displaySize, dvdLogoSize](const PMD::DisplayResizeEvent &event) {
                     displaySize = event.size;
                     x = ::rand() % (PMD::x(displaySize) - PMD::x(dvdLogoSize));
                     y = ::rand() % (PMD::y(displaySize) - PMD::y(dvdLogoSize));
+                }
+            ),
+            PMD::EventQueue::Handler<PMD::DisplayCloseEvent>(
+                [&running](const PMD::DisplayCloseEvent &) {
+                    running = false;
                 }
             )
         );

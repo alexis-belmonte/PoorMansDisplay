@@ -18,11 +18,20 @@ namespace PMD
                 display->requestFramebufferResize();
             });
         });
+
+        ::signal(SIGINT, [](int)
+        {
+            DisplayInstanceManager::foreach([](Display *display)
+            {
+                display->getEventQueue().push<DisplayCloseEvent>();
+            });
+        });
     }
 
     void DisplayInstanceManager::teardown()
     {
         ::signal(SIGWINCH, SIG_DFL);
+        ::signal(SIGINT, SIG_DFL);
     }
 
     void DisplayInstanceManager::add(Display *display)
