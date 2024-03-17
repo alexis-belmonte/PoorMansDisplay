@@ -34,7 +34,7 @@ namespace PMD
         void resizeFramebuffer();
 
     public:
-        void access(std::function<void(Texture &)> &&callback);
+        Texture &getFramebuffer();
         EventQueue &getEventQueue();
 
         void update();

@@ -4,7 +4,7 @@ namespace PMD
 {
     Texture::Texture(const Vector2u &size) :
         _size(size),
-        _contents(new Color[PMD::x(size) * PMD::y(size)])
+        _contents(std::make_unique_for_overwrite<Color[]>(PMD::x(size) * PMD::y(size)))
     {}
 
     Texture::Texture(::size_t width, ::size_t height) :
@@ -16,14 +16,33 @@ namespace PMD
         return this->_size;
     }
 
+    void Texture::resize(const Vector2u &size)
+    {
+        if (size == this->_size)
+            return;
+
+        this->_size = size;
+
+        std::unique_ptr<Color[]> newContents(
+            std::make_unique_for_overwrite<Color[]>(PMD::x(size) * PMD::y(size))
+        );
+
+        this->access([this, newContents = newContents.get()](const Color *contents) {
+            for (::size_t i = 0; i < PMD::x(this->_size) * PMD::y(this->_size); i++)
+                newContents[i] = contents[i];
+        });
+
+        this->_contents = std::move(newContents);
+    }
+
     void Texture::access(std::function<void(Color *)> &&callback)
     {
-        callback(this->_contents);
+        callback(this->_contents.get());
     }
     
     void Texture::access(std::function<void(const Color *)> &&callback) const
     {
-        callback(this->_contents);
+        callback(this->_contents.get());
     }
 
     void Texture::clear(Color color)
@@ -38,7 +57,7 @@ namespace PMD
 
     void Texture::copy(const Vector2u &position, const Texture &source)
     {
-        this->access([this, position, source](Color *targetContents) {
+        this->access([this, position, &source](Color *targetContents) {
             Vector2u targetSize = this->getSize();
             Vector2u sourceSize = source.getSize();
 
@@ -59,7 +78,7 @@ namespace PMD
 
     void Texture::blit(const Vector2u &position, const Texture &source)
     {
-        this->access([this, position, source](Color *targetContents) {
+        this->access([this, position, &source](Color *targetContents) {
             Vector2u targetSize = this->getSize();
             Vector2u sourceSize = source.getSize();
 

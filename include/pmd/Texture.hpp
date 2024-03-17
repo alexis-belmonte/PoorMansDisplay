@@ -4,7 +4,7 @@
 #include "pmd/Color.hpp"
 
 #include <functional>
-#include <mutex>
+#include <memory>
 
 #include <cstdint>
 
@@ -17,6 +17,7 @@ namespace PMD
         Texture(::size_t width, ::size_t height);
 
         const Vector2u &getSize() const;
+        void resize(const Vector2u &size);
 
         void access(std::function<void(Color *)> &&callback);
         void access(std::function<void(const Color *)> &&callback) const;
@@ -36,6 +37,6 @@ namespace PMD
 
     protected:
         Vector2u _size;
-        Color *_contents = nullptr;
+        std::unique_ptr<Color[]> _contents;
     };
 };

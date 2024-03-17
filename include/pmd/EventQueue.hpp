@@ -13,9 +13,13 @@ namespace PMD
 {
     class EventQueue
     {
+    protected:
+        template<typename T>
+        using IsEventClass = std::enable_if_t<std::is_base_of<Event, T>::value>;
+
     public:
         template<typename T,
-                 typename = std::enable_if_t<std::is_base_of<Event, T>::value>>
+                 typename = IsEventClass<T>>
         class Handler
         {
         public:
@@ -35,7 +39,7 @@ namespace PMD
     public:
         template<typename T,
                  typename ...Args,
-                 typename = std::enable_if_t<std::is_base_of<Event, T>::value>>
+                 typename = IsEventClass<T>>
         inline void push(Args... eventArgs)
         {
             std::lock_guard<std::mutex> lock(this->_queueMutex);

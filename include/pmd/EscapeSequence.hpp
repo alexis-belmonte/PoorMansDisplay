@@ -22,7 +22,11 @@ namespace PMD
         static constexpr const char FLIP_SCREEN_NORMAL[]       = "\e[?1049h";
         static constexpr const char FLIP_SCREEN_ALTERNATE[]    = "\e[?1049l";
 
+        static constexpr const char DISABLE_AUTOWRAP[]         = "\e[?7l";
+        static constexpr const char ENABLE_AUTOWRAP[]          = "\e[?7h";
+
         static constexpr const char CLEAR_SCREEN[]             = "\e[2J";
+        static constexpr const char CLEAR_SCROLLBACK[]         = "\e[3J";
         static constexpr const char RESET_TERMINAL[]           = "\ec";
 
         static constexpr const char SET_RGB_BGCOLOR[]          = "\e[48;2;{};{};{}m";

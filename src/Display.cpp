@@ -37,11 +37,10 @@ namespace PMD
 
         this->sendCommand(EscapeSequence::FLIP_SCREEN_ALTERNATE);
         this->sendCommand(EscapeSequence::HIDE_CURSOR_CARET);
-        this->sendCommand(EscapeSequence::CLEAR_SCREEN);
-        this->sendCommand(EscapeSequence::SET_CURSOR_HOME);
-        
-        this->resizeFramebuffer();
+        this->sendCommand(EscapeSequence::DISABLE_AUTOWRAP);
 
+        this->resizeFramebuffer();
+        
         DisplayInstanceManager::add(this);
     }
 
@@ -98,12 +97,22 @@ namespace PMD
         if (newSize == this->_lastFramebufferSize)
             return;
 
-        this->_framebuffer           = std::make_unique<Texture>(newSize);
-        this->_framebufferUpdateMask = std::make_unique<Texture>(newSize);
+        if (!this->_framebuffer)
+            this->_framebuffer = std::make_unique<Texture>(newSize);
+        if (!this->_framebufferUpdateMask)
+            this->_framebufferUpdateMask = std::make_unique<Texture>(newSize);
 
+        this->_framebuffer->resize(newSize);
+        this->_framebufferUpdateMask->resize(newSize);
+
+        this->_framebufferUpdateMask->copy(Vector2u{0, 0}, *this->_framebuffer);
         this->_framebufferUpdateMask->negate();
 
         this->_lastFramebufferSize = newSize;
+
+        this->sendCommand(EscapeSequence::CLEAR_SCREEN);
+        this->sendCommand(EscapeSequence::CLEAR_SCROLLBACK);
+        this->sendCommand(EscapeSequence::SET_CURSOR_HOME);
 
         this->_eventQueue.push<DisplayResizeEvent>(newSize);
     }
@@ -117,9 +126,9 @@ namespace PMD
         );
     }
 
-    void Display::access(std::function<void(Texture &)> &&callback)
+    Texture &Display::getFramebuffer()
     {
-        callback(*this->_framebuffer);
+        return *this->_framebuffer;
     }
 
     EventQueue &Display::getEventQueue()

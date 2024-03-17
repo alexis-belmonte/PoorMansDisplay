@@ -26,6 +26,7 @@ static void setTextureColor(PMD::Texture &target, PMD::Texture &source, PMD::Col
 int main(void)
 {
     PMD::Display  display;
+    PMD::Texture  &framebuffer = display.getFramebuffer();
     PMD::Vector2u displaySize = display.getSize();
     
     PMD::Texture  dvdLogoTexture(PMD::TextureLoader::fromLocalStorage("./DVDLogo.png"));
@@ -77,10 +78,8 @@ int main(void)
         x += xd;
         y += yd;
 
-        display.access([x, y, &dvdLogoColoredTexture](PMD::Texture &framebuffer) {
-            framebuffer.clear(0, 0, 0, 255);
-            framebuffer.blit({x, y}, dvdLogoColoredTexture);
-        });
+        framebuffer.clear(0, 0, 0, 255);
+        framebuffer.blit({x, y}, dvdLogoColoredTexture);
         display.present();
 
         ::usleep(15000);
