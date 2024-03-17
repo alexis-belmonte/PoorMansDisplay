@@ -46,9 +46,9 @@ int main(void)
         display.getEventQueue().poll(
             PMD::EventQueue::Handler<PMD::DisplayResizeEvent>(
                 [&x, &y, &displaySize, dvdLogoSize](const PMD::DisplayResizeEvent &event) mutable {
+                    displaySize = event.size;
                     x = ::rand() % (PMD::x(displaySize) - PMD::x(dvdLogoSize));
                     y = ::rand() % (PMD::y(displaySize) - PMD::y(dvdLogoSize));
-                    displaySize = event.size;
                 }
             )
         );
