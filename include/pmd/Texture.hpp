@@ -28,8 +28,8 @@ namespace PMD
             this->clear(Color(r, g, b, a));
         }
 
-        void copy(const Vector2u &position, const Texture &source);
-        void blit(const Vector2u &position, const Texture &source);
+        void copy(const Texture &source, const Vector2u &position);
+        void blit(const Texture &source, const Vector2u &position);
 
         void negate();
 

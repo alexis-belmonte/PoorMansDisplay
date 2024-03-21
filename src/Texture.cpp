@@ -55,7 +55,7 @@ namespace PMD
         });
     }
 
-    void Texture::copy(const Vector2u &position, const Texture &source)
+    void Texture::copy(const Texture &source, const Vector2u &position)
     {
         this->access([this, position, &source](Color *targetContents) {
             Vector2u targetSize = this->getSize();
@@ -76,7 +76,7 @@ namespace PMD
         });
     }
 
-    void Texture::blit(const Vector2u &position, const Texture &source)
+    void Texture::blit(const Texture &source, const Vector2u &position)
     {
         this->access([this, position, &source](Color *targetContents) {
             Vector2u targetSize = this->getSize();

@@ -39,7 +39,12 @@ namespace PMD
 
     public:
         Texture &getFramebuffer();
-        EventQueue &getEventQueue();
+
+        template<typename... Args>
+        void poll(Args &&...args)
+        {
+            this->_eventQueue.poll(std::forward<Args>(args)...);
+        }
 
         void update();
         void present();

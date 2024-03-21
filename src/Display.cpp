@@ -125,7 +125,7 @@ namespace PMD
         this->_framebuffer->resize(newSize);
         this->_framebufferUpdateMask->resize(newSize);
 
-        this->_framebufferUpdateMask->copy(Vector2u{0, 0}, *this->_framebuffer);
+        this->_framebufferUpdateMask->copy(*this->_framebuffer, Vector2u{0, 0});
         this->_framebufferUpdateMask->negate();
 
         this->_lastFramebufferSize = newSize;
@@ -140,11 +140,6 @@ namespace PMD
     Texture &Display::getFramebuffer()
     {
         return *this->_framebuffer;
-    }
-
-    EventQueue &Display::getEventQueue()
-    {
-        return this->_eventQueue;
     }
 
     void Display::update()
@@ -196,7 +191,7 @@ namespace PMD
             });
         });
 
-        this->_framebufferUpdateMask->copy(Vector2u{0, 0}, *this->_framebuffer);
+        this->_framebufferUpdateMask->copy(*this->_framebuffer, {0, 0});
 
         const std::string &command = commandStream.str();
         ::write(this->_fd, command.c_str(), command.size());

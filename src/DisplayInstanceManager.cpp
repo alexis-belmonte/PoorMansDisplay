@@ -23,7 +23,7 @@ namespace PMD
         {
             DisplayInstanceManager::foreach([](Display *display)
             {
-                display->getEventQueue().push<DisplayCloseEvent>();
+                display->_eventQueue.push<DisplayCloseEvent>();
             });
         });
     }

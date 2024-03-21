@@ -46,7 +46,7 @@ int main(void)
     while (running) {
         display.update();
 
-        display.getEventQueue().poll(
+        display.poll(
             PMD::EventQueue::Handler<PMD::DisplayResizeEvent>(
                 [&x, &y, &displaySize, dvdLogoSize](const PMD::DisplayResizeEvent &event) {
                     displaySize = event.size;
@@ -95,7 +95,7 @@ int main(void)
         }
 
         framebuffer.clear(0, 0, 0, 255);
-        framebuffer.blit({x, y}, dvdLogoColoredTexture);
+        framebuffer.blit(dvdLogoColoredTexture, {0, 0});
         display.present();
 
         ::usleep(15000);
