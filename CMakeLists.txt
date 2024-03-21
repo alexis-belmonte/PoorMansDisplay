@@ -27,6 +27,11 @@ set_target_properties(
 target_link_libraries(PoorMansDisplay PNG::PNG JPEG::JPEG)
 
 file(GLOB_RECURSE PMD_DEMO_FILES ${PMD_DEMO_DIR}/*.cpp)
-add_executable(demo ${PMD_DEMO_FILES})
-target_link_libraries(demo PoorMansDisplay)
+
+foreach(file ${PMD_DEMO_FILES})
+    get_filename_component(name ${file} NAME_WE)
+    add_executable(${name} ${file})
+    target_link_libraries(${name} PoorMansDisplay)
+endforeach()
+
 configure_file(${PMD_DEMO_DIR}/DVDLogo.png ${CMAKE_CURRENT_BINARY_DIR}/DVDLogo.png COPYONLY)

@@ -5,6 +5,7 @@
 
 #include "pmd/Event.hpp"
 #include "pmd/EventQueue.hpp"
+#include "pmd/InputManager.hpp"
 
 #include "pmd/Texture.hpp"
 #include "pmd/Vector.hpp"
@@ -23,14 +24,17 @@ namespace PMD
         Display(const std::string &target = "/dev/tty");
         ~Display();
 
-        Vector2u getSize() const;
+        Vector2u getScreenSize() const;
+        Vector2u getFramebufferSize() const;
+
+        void setIconTitle(const std::string &title) const;
+        void setWindowTitle(const std::string &title) const;
 
     protected:
         void sendCommand(const std::string &feedback) const;
         std::string getFeedback() const;
 
         void requestFramebufferResize();
-        void resizeFramebuffer(Vector2u newSize);
         void resizeFramebuffer();
 
     public:
@@ -50,5 +54,6 @@ namespace PMD
         std::unique_ptr<Texture> _framebufferUpdateMask;
 
         EventQueue _eventQueue;
+        InputManager _inputManager;
     };
 };

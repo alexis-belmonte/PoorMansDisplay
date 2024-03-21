@@ -30,7 +30,8 @@ namespace PMD
                 return fd;
             }()
         ),
-        _controller(this->_fd)
+        _controller(this->_fd),
+        _inputManager(this->_eventQueue)
     {
         this->_controller.setInputEcho(false);
         this->_controller.setCanonical(false);
@@ -53,7 +54,7 @@ namespace PMD
         DisplayInstanceManager::remove(this);
     }
 
-    Vector2u Display::getSize() const
+    Vector2u Display::getScreenSize() const
     {
         struct ::winsize size;
 
@@ -62,7 +63,24 @@ namespace PMD
 
         return Vector2u(size.ws_col + 1, size.ws_row + 1);
     }
-    
+
+    Vector2u Display::getFramebufferSize() const
+    {
+        Vector2u termSize = this->getScreenSize();
+
+        return Vector2u{std::get<0>(termSize), std::get<1>(termSize) * 2};
+    }
+
+    void Display::setIconTitle(const std::string &title) const
+    {
+        this->sendCommand(std::format(EscapeSequence::SET_ICON_TITLE, title));
+    }
+
+    void Display::setWindowTitle(const std::string &title) const
+    {
+        this->sendCommand(std::format(EscapeSequence::SET_WINDOW_TITLE, title));
+    }
+
     void Display::sendCommand(const std::string &command) const
     {
         if (::write(this->_fd, command.c_str(), command.size()) < 0)
@@ -77,7 +95,7 @@ namespace PMD
             throw std::runtime_error("Failed to get available byte count from the terminal");
 
         if (available == 0)
-            return "";
+            return {};
 
         char buffer[available];
 
@@ -92,8 +110,10 @@ namespace PMD
         this->_framebufferResizeRequested = true;
     }
 
-    void Display::resizeFramebuffer(Vector2u newSize)
+    void Display::resizeFramebuffer()
     {
+        Vector2u newSize = this->getFramebufferSize();
+
         if (newSize == this->_lastFramebufferSize)
             return;
 
@@ -117,15 +137,6 @@ namespace PMD
         this->_eventQueue.push<DisplayResizeEvent>(newSize);
     }
     
-    void Display::resizeFramebuffer()
-    {
-        Vector2u termSize = this->getSize();
-
-        this->resizeFramebuffer(
-            Vector2u{std::get<0>(termSize), std::get<1>(termSize) * 2}
-        );
-    }
-
     Texture &Display::getFramebuffer()
     {
         return *this->_framebuffer;
@@ -139,20 +150,11 @@ namespace PMD
     void Display::update()
     {
         if (this->_framebufferResizeRequested) {
-            Vector2u termSize = this->getSize();
-            if (termSize == this->_lastFramebufferSize)
-                return;
-
             this->resizeFramebuffer();
             this->_framebufferResizeRequested = false;
         }
 
-        std::string feedback = this->getFeedback();
-
-        if (feedback.empty())
-            return;
-
-        // TODO: Manage feedback
+        this->_inputManager.feed(this->getFeedback());
     }
 
     void Display::present()

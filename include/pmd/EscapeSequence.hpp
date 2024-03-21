@@ -7,8 +7,11 @@ namespace PMD
     class EscapeSequence
     {
     public:
-        static constexpr const char ENABLE_MOUSE_CAPTURE[]     = "\e[?1000h";
-        static constexpr const char DISABLE_MOUSE_CAPTURE[]    = "\e[?1000l";
+        static constexpr const char SET_ICON_TITLE[]           = "\e]1;{}\a";
+        static constexpr const char SET_WINDOW_TITLE[]         = "\e]2;{}\a";
+
+        static constexpr const char ENABLE_MOUSE_CAPTURE[]     = "\e[?1003h";
+        static constexpr const char DISABLE_MOUSE_CAPTURE[]    = "\e[?1003l";
 
         static constexpr const char SET_CURSOR_POSITION[]      = "\e[{};{}H";
         static constexpr const char SET_CURSOR_HOME[]          = "\e[H";
