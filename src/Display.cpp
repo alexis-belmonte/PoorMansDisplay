@@ -169,8 +169,8 @@ namespace PMD
                         if (!(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))
                             continue;
 
-                        if (std::get<0>(currPos) != x || std::get<1>(currPos) != y) {
-                            commandStream << std::format(EscapeSequence::SET_CURSOR_POSITION, y / 2, x);
+                        if (PMD::x(currPos) != x || PMD::y(currPos) != y / 2) {
+                            commandStream << std::format(EscapeSequence::SET_CURSOR_POSITION, y / 2, 1 + x);
                             currPos = {x, y / 2};
                         }
 
@@ -184,9 +184,9 @@ namespace PMD
                                              contents[i2].c.b)
                                       << "▀";
                         
-                        currPos = {std::get<0>(currPos) + 1, std::get<1>(currPos)};
+                        currPos = {PMD::x(currPos) + 1, PMD::y(currPos)};
                     }
-                    currPos = {0, std::get<1>(currPos) + 1};
+                    //currPos = {0, PMD::y(currPos) + 1};
                 }
             });
         });
