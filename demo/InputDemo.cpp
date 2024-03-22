@@ -48,7 +48,7 @@ int main(void)
         display.present();
 
         redSquarePos = {PMD::x(redSquarePos) + 1, PMD::y(redSquarePos) + 1};
-        if (PMD::y(redSquarePos) >= PMD::y(framebuffer.getSize()) - PMD::y(redSquare.getSize()))
+        if (PMD::y(redSquarePos) > PMD::y(framebuffer.getSize()) - PMD::y(redSquare.getSize()))
             redSquarePos = {0, 0};
 
         std::this_thread::sleep_for(16ms);

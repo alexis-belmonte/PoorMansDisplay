@@ -61,14 +61,14 @@ namespace PMD
         if (::ioctl(this->_fd, TIOCGWINSZ, &size) != 0)
             throw std::runtime_error("Failed to get terminal size");
 
-        return Vector2u(size.ws_col + 1, size.ws_row + 1);
+        return Vector2u(size.ws_col + 1, size.ws_row);
     }
 
     Vector2u Display::getFramebufferSize() const
     {
         Vector2u termSize = this->getScreenSize();
 
-        return Vector2u{std::get<0>(termSize), std::get<1>(termSize) * 2};
+        return Vector2u{PMD::x(termSize), PMD::y(termSize) * 2};
     }
 
     void Display::setIconTitle(const std::string &title) const
