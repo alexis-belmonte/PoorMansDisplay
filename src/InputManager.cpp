@@ -8,7 +8,7 @@ namespace PMD
         _eventQueue(eventQueue)
     {}
 
-    void InputManager::pushKey(char key, bool shift, bool ctrl, bool alt)
+    void InputManager::handleKey(char key, bool shift, bool ctrl, bool alt, std::chrono::steady_clock::time_point &now)
     {
         Key keyRepr = {key, shift, ctrl, alt};
 
@@ -19,26 +19,15 @@ namespace PMD
         }
 
         KeyState &state = this->_keyStatus.at(keyRepr);
-        auto now = std::chrono::steady_clock::now();
 
         switch (state.phase) {
             case KeyState::Phase::DOWN: {
-                if (now - state.lastEventTimestamp <= InputManager::KEY_DOWN_TIMEOUT) {
-                    this->_eventQueue.push<KeyUpEvent>(key, shift, ctrl, alt);
-                    this->_eventQueue.push<KeyDownEvent>(key, shift, ctrl, alt);
-                } else
+                if (now - state.lastEventTimestamp <= InputManager::KEY_DOWN_TIMEOUT)
                     state.phase = KeyState::Phase::REPEAT;
                 break;
             }
 
             case KeyState::Phase::REPEAT: {
-                if (now - state.lastEventTimestamp > InputManager::KEY_REPEAT_DELAY) {
-                    this->_eventQueue.push<KeyUpEvent>(key, shift, ctrl, alt);
-                    this->_eventQueue.push<KeyDownEvent>(key, shift, ctrl, alt);
-
-                    state.phase = KeyState::Phase::DOWN;
-                }
-
                 break;
             }
         }
@@ -50,21 +39,6 @@ namespace PMD
     {
         auto now = std::chrono::steady_clock::now();
 
-        std::erase_if(this->_keyStatus, [this, &now](const auto &pair) {
-            const auto &[key, state] = pair;
-
-            if (now - state.lastEventTimestamp < (
-                    state.phase == KeyState::Phase::DOWN ?
-                        InputManager::KEY_DOWN_TIMEOUT :
-                        InputManager::KEY_REPEAT_DELAY
-                ))
-                return false;
-                
-            this->_eventQueue.push<KeyUpEvent>(key.key, key.shift, key.ctrl, key.alt);
-
-            return false;
-        });
-
         for (::size_t i = 0; i < feedback.size();) {
             if (feedback[i] != '\x1b') {
                 char key = feedback[i];
@@ -73,13 +47,27 @@ namespace PMD
                 if (shift)
                     key = std::tolower(key);
 
-                this->pushKey(key, shift, false, false);
+                this->handleKey(key, shift, false, false, now);
                 i++;
                 continue;
             }
 
-            // TODO: Implement this
+            // TODO: Implement complex escape sequences
             return;
         }
+
+        std::erase_if(this->_keyStatus, [this, &now](const auto &pair) {
+            const auto &[key, state] = pair;
+
+            if (now - state.lastEventTimestamp <= (
+                    state.phase == KeyState::Phase::DOWN ?
+                        InputManager::KEY_DOWN_TIMEOUT :
+                        InputManager::KEY_REPEAT_DELAY
+                ))
+                return false;
+
+            this->_eventQueue.push<KeyUpEvent>(key.key, key.shift, key.ctrl, key.alt);
+            return true;
+        });
     }
 };

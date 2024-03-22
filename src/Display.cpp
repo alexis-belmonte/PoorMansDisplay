@@ -170,7 +170,7 @@ namespace PMD
                             continue;
 
                         if (PMD::x(currPos) != x || PMD::y(currPos) != y / 2) {
-                            commandStream << std::format(EscapeSequence::SET_CURSOR_POSITION, y / 2, 1 + x);
+                            commandStream << std::format(EscapeSequence::SET_CURSOR_POSITION, 1 + y / 2, 1 + x);
                             currPos = {x, y / 2};
                         }
 

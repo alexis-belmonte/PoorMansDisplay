@@ -24,13 +24,19 @@ int main(void)
         display.poll(
             PMD::EventQueue::Handler<PMD::KeyDownEvent>(
                 [&running, &redSquare](const PMD::KeyDownEvent &event) {
-                    if (event.key == 'q')
+                    if (event.key == 'q') {
                         running = false;
+                        return;
+                    }
+                    if (event.key != 'a')
+                        return;
                     redSquare.clear(255, 0, 0, 127);
                 }
             ),
             PMD::EventQueue::Handler<PMD::KeyUpEvent>(
-                [&redSquare](const PMD::KeyUpEvent &) {
+                [&redSquare](const PMD::KeyUpEvent &event) {
+                    if (event.key != 'a')
+                        return;
                     redSquare.clear(0, 0, 0, 127);
                 }
             )
@@ -38,11 +44,10 @@ int main(void)
 
         framebuffer.clear(127, 127, 127);
         framebuffer.blit(redSquare, redSquarePos);
-        framebuffer.blit(redSquare, {12, 0});
 
         display.present();
 
-        //redSquarePos = {PMD::x(redSquarePos) + 1, PMD::y(redSquarePos) + 1};
+        redSquarePos = {PMD::x(redSquarePos) + 1, PMD::y(redSquarePos) + 1};
         if (PMD::y(redSquarePos) >= PMD::y(framebuffer.getSize()) - PMD::y(redSquare.getSize()))
             redSquarePos = {0, 0};
 

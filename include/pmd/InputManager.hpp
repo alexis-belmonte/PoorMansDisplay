@@ -21,14 +21,14 @@ namespace PMD
     class InputManager
     {
     public:
-        static constexpr std::chrono::milliseconds KEY_DOWN_TIMEOUT{250};
-        static constexpr std::chrono::milliseconds KEY_REPEAT_DELAY{50};
+        static constexpr std::chrono::milliseconds KEY_DOWN_TIMEOUT{500};
+        static constexpr std::chrono::milliseconds KEY_REPEAT_DELAY{35};
 
     public:
         InputManager(EventQueue &eventQueue);
 
     protected:
-        void pushKey(char key, bool shift, bool ctrl, bool alt);
+        void handleKey(char key, bool shift, bool ctrl, bool alt, std::chrono::steady_clock::time_point &now);
 
     public:
         void feed(const std::string &feedback);
