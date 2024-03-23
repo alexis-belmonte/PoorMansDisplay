@@ -67,7 +67,7 @@ namespace PMD
         });
     }
 
-    void Texture::copy(const Texture &source, Vector2u position, Vector2f scale, Rectangle2u shearRect)
+    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, Rectangle2u shearRect, bool mapAlpha)
     {
         Vector2u targetSize = this->getSize();
         Vector2u sourceSize = source.getSize();
@@ -83,11 +83,11 @@ namespace PMD
             source.access([=, this](const Color *sourceContents) {
                 for (::size_t y = PMD::y(position);
                         y < PMD::y(position) + PMD::height(shearRect) * PMD::y(scale) &&
-                            PMD::y(position) + y < PMD::y(targetSize);
+                            y < PMD::y(targetSize);
                         y++)
                     for (::size_t x = PMD::x(position);
                             x < PMD::x(position) + PMD::width(shearRect) * PMD::x(scale) &&
-                                PMD::x(position) + x < PMD::x(targetSize);
+                                x < PMD::x(targetSize);
                             x++) {
                         Vector2f sourcePos{
                             PMD::x(shearRect) + (x - PMD::x(position)) / PMD::x(scale),
@@ -137,54 +137,17 @@ namespace PMD
 
                             break;
                         }
+
+                        Color *targetColor = &targetContents[x + (PMD::x(targetSize) * y)];
                         
-                        targetContents[x + (PMD::x(targetSize) * y)] = sourceColor;
+                        *targetColor = mapAlpha
+                            ? sourceColor
+                            : Color::lerp(*targetColor, sourceColor, sourceColor.c.a / 255.0, true);
                     }
             });
         });
     }
     
-    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, Rectangle2u shearRect)
-    {
-        this->access([this, position, &source](Color *targetContents) {
-            Vector2u targetSize = this->getSize();
-            Vector2u sourceSize = source.getSize();
-
-            double fracX = PMD::x(position) - std::abs(PMD::x(position));
-            double fracY = PMD::y(position) - std::abs(PMD::y(position));
-
-            source.access([position, &targetSize, &sourceSize, targetContents, fracX, fracY](const Color *sourceContents) {
-                for (::size_t y = 0; y < PMD::y(sourceSize) && PMD::y(position) + y < PMD::y(targetSize); y++)
-                    for (::size_t x = 0; x < PMD::x(sourceSize) && PMD::x(position) + x < PMD::x(targetSize); x++) {
-                        #define sourcePos(x, y) \
-                            (y) * PMD::x(sourceSize) + (x)
-
-                        #define targetPos(x, y) \
-                            static_cast<::size_t>( \
-                                (PMD::x(position) + (x)) + \
-                                (PMD::x(targetSize) * (PMD::y(position) + (y))) \
-                            )
-
-                        double alpha =
-                            sourceContents[sourcePos(x, y)].c.a / 255.0
-                                * (1 - fracX) * (1 - fracY);
-
-                        targetContents[targetPos(x, y)].c.r =
-                            targetContents[targetPos(x, y)].c.r * (1 - alpha) + sourceContents[sourcePos(x, y)].c.r * alpha;
-                        targetContents[targetPos(x, y)].c.g =
-                            targetContents[targetPos(x, y)].c.g * (1 - alpha) + sourceContents[sourcePos(x, y)].c.g * alpha;
-                        targetContents[targetPos(x, y)].c.b =
-                            targetContents[targetPos(x, y)].c.b * (1 - alpha) + sourceContents[sourcePos(x, y)].c.b * alpha;
-                        targetContents[targetPos(x, y)].c.a =
-                            targetContents[targetPos(x, y)].c.a * (1 - alpha) + sourceContents[sourcePos(x, y)].c.a * alpha;
-                        
-                        #undef sourcePos
-                        #undef targetPos
-                    }
-            });
-        });
-    }
-
     void Texture::negate()
     {
         this->access([this](Color *contents) {

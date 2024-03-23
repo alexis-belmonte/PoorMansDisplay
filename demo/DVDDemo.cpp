@@ -31,6 +31,8 @@ int main(void)
 
     PMD::Texture  &framebuffer = display.getFramebuffer();
     PMD::Vector2u displaySize = display.getFramebufferSize();
+
+    framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
     
     PMD::Texture  dvdLogoTexture(PMD::TextureLoader::fromLocalStorage("./DVDLogo.png"));
     PMD::Vector2u dvdLogoSize = dvdLogoTexture.getSize();
@@ -69,8 +71,8 @@ int main(void)
                     running = false;
                 }
             ),
-            PMD::EventQueue::Handler<PMD::KeyUpEvent>(
-                [&running](const PMD::KeyUpEvent &event) {
+            PMD::EventQueue::Handler<PMD::KeyDownEvent>(
+                [&running](const PMD::KeyDownEvent &event) {
                     if (event.key == 'q')
                         running = false;
                 }
@@ -98,7 +100,7 @@ int main(void)
         }
 
         framebuffer.clear(0, 0, 0, 255);
-        framebuffer.blit(dvdLogoColoredTexture, {x, y});
+        framebuffer.blit(dvdLogoColoredTexture, {x, y}, {1.2, 2.5});
         display.present();
 
         ::usleep(15000);
