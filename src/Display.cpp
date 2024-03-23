@@ -123,10 +123,9 @@ namespace PMD
             this->_framebufferUpdateMask = std::make_unique<Texture>(newSize);
 
         this->_framebuffer->resize(newSize);
-        this->_framebufferUpdateMask->resize(newSize);
 
-        this->_framebufferUpdateMask->copy(*this->_framebuffer, Vector2u{0, 0});
-        this->_framebufferUpdateMask->negate();
+        this->_framebufferUpdateMask->resize(newSize);
+        this->_framebufferUpdateMask->clear();
 
         this->_lastFramebufferSize = newSize;
 
@@ -135,6 +134,8 @@ namespace PMD
         this->sendCommand(EscapeSequence::SET_CURSOR_HOME);
 
         this->_eventQueue.push<DisplayResizeEvent>(newSize);
+
+        this->_framebufferRedrawRequested = true;
     }
     
     Texture &Display::getFramebuffer()
@@ -166,7 +167,7 @@ namespace PMD
                         size_t i1 =  y      * std::get<0>(size) + x;
                         size_t i2 = (y + 1) * std::get<0>(size) + x;
 
-                        if (!(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))
+                        if (!this->_framebufferRedrawRequested && !(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))
                             continue;
 
                         if (PMD::x(currPos) != x || PMD::y(currPos) != y / 2) {
@@ -195,5 +196,7 @@ namespace PMD
 
         const std::string &command = commandStream.str();
         ::write(this->_fd, command.c_str(), command.size());
+
+        this->_framebufferRedrawRequested = false;
     }
 };

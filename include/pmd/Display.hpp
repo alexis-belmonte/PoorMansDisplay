@@ -55,6 +55,7 @@ namespace PMD
  
         Vector2u _lastFramebufferSize;
         bool _framebufferResizeRequested = false;
+        bool _framebufferRedrawRequested = false;
         std::unique_ptr<Texture> _framebuffer;
         std::unique_ptr<Texture> _framebufferUpdateMask;
 

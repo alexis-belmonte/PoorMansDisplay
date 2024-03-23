@@ -35,3 +35,4 @@ foreach(file ${PMD_DEMO_FILES})
 endforeach()
 
 configure_file(${PMD_DEMO_DIR}/DVDLogo.png ${CMAKE_CURRENT_BINARY_DIR}/DVDLogo.png COPYONLY)
+configure_file(${PMD_DEMO_DIR}/Spinner.png ${CMAKE_CURRENT_BINARY_DIR}/Spinner.png COPYONLY)

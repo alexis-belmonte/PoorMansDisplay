@@ -34,5 +34,7 @@ namespace PMD
                 static_cast<uint8_t>((color >> 24) & 0xff)
             };
         }
+
+        static Color lerp(Color a, Color b, double t, bool additiveAlpha = false);
     } __attribute__((packed));
 };
