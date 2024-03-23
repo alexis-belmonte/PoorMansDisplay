@@ -86,7 +86,7 @@ namespace PMD
                             PMD::y(position) + y < PMD::y(targetSize);
                         y++)
                     for (::size_t x = PMD::x(position);
-                            x < PMD::x(position) + PMD::width(shearRect) * PMD::y(scale) &&
+                            x < PMD::x(position) + PMD::width(shearRect) * PMD::x(scale) &&
                                 PMD::x(position) + x < PMD::x(targetSize);
                             x++) {
                         Vector2f sourcePos{
