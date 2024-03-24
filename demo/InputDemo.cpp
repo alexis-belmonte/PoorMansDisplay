@@ -12,44 +12,67 @@ int main(void)
 
     PMD::Texture &framebuffer = display.getFramebuffer();
     PMD::Texture redSquare(10, 10);
-    PMD::Vector2u redSquarePos = {0, 0};
+    PMD::Vector2f redSquarePos = {0.0, 0.0};
 
     redSquare.clear(0, 0, 0, 127);
 
     display.setWindowTitle("Input Demo");
+    framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
+    
+    bool up = false;
+    bool down = false;
+    bool left = false;
+    bool right = false;
 
     while (running) {
         display.update();
 
         display.poll(
             PMD::EventQueue::Handler<PMD::KeyDownEvent>(
-                [&running, &redSquare](const PMD::KeyDownEvent &event) {
+                [&](const PMD::KeyDownEvent &event) {
                     if (event.key == 'q') {
                         running = false;
                         return;
                     }
-                    if (event.key != 'a')
-                        return;
-                    redSquare.clear(255, 0, 0, 127);
+                    if (event.key == 'a')
+                        redSquare.clear(255, 0, 0, 127);
+
+                    if (event.key == 'i')
+                        up = true;
+                    if (event.key == 'k')
+                        down = true;
+                    if (event.key == 'j')
+                        left = true;
+                    if (event.key == 'l')
+                        right = true;
                 }
             ),
             PMD::EventQueue::Handler<PMD::KeyUpEvent>(
-                [&redSquare](const PMD::KeyUpEvent &event) {
-                    if (event.key != 'a')
-                        return;
-                    redSquare.clear(0, 0, 0, 127);
+                [&](const PMD::KeyUpEvent &event) {
+                    if (event.key == 'a')
+                        redSquare.clear(0, 0, 0, 127);
+
+                    if (event.key == 'i')
+                        up = false;
+                    if (event.key == 'k')
+                        down = false;
+                    if (event.key == 'j')
+                        left = false;
+                    if (event.key == 'l')
+                        right = false;
                 }
             )
         );
+
+        redSquarePos = {
+            (PMD::x(redSquarePos) + (right - left) * 0.25),
+            (PMD::y(redSquarePos) + (down - up) * 0.25)
+        };
 
         framebuffer.clear(127, 127, 127);
         framebuffer.blit(redSquare, redSquarePos);
 
         display.present();
-
-        redSquarePos = {PMD::x(redSquarePos) + 1, PMD::y(redSquarePos) + 1};
-        if (PMD::y(redSquarePos) > PMD::y(framebuffer.getSize()) - PMD::y(redSquare.getSize()))
-            redSquarePos = {0, 0};
 
         std::this_thread::sleep_for(16ms);
     }

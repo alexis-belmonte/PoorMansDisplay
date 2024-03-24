@@ -41,10 +41,10 @@ int main(void)
 
     setTextureColor(dvdLogoColoredTexture, dvdLogoTexture, ::rand());
 
-    ::size_t x;
-    ::size_t y;
-    ::size_t xd = 1;
-    ::size_t yd = 1; 
+    double x;
+    double y;
+    double xd = 0.03;
+    double yd = 0.03;
 
     bool running = true;
 
@@ -58,8 +58,8 @@ int main(void)
 
                     if (PMD::x(dvdLogoSize) >= PMD::x(displaySize) ||
                         PMD::y(dvdLogoSize) >= PMD::y(displaySize)) {
-                        x = 0;
-                        y = 0;
+                        x = 0.0;
+                        y = 0.0;
                     } else {
                         x = ::rand() % (PMD::x(displaySize) - PMD::x(dvdLogoSize));
                         y = ::rand() % (PMD::y(displaySize) - PMD::y(dvdLogoSize));
@@ -99,8 +99,8 @@ int main(void)
             y += yd;
         }
 
-        framebuffer.clear(0, 0, 0, 255);
-        framebuffer.blit(dvdLogoColoredTexture, {x, y}, {1.2, 2.5});
+        framebuffer.clear();
+        framebuffer.blit(dvdLogoColoredTexture, {x, y}, {1.0, 1.0});
         display.present();
 
         ::usleep(15000);

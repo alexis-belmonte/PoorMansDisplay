@@ -40,7 +40,7 @@ int main(void)
         );
 
         framebuffer.clear();
-        framebuffer.copy(spinnerTexture, {0, 0}, {3.0, 2.0}, spinnerTextureRects.at(spinnerTextureIndex));
+        framebuffer.blit(spinnerTexture, {0, 0}, {3.0, 2.0}, spinnerTextureRects.at(spinnerTextureIndex));
 
         spinnerTextureIndex = ++spinnerTextureIndex % spinnerTextureRects.size();
         

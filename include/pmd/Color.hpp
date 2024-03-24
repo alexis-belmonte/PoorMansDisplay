@@ -35,6 +35,6 @@ namespace PMD
             };
         }
 
-        static Color lerp(Color a, Color b, double t, bool additiveAlpha = false);
+        static Color lerp(Color a, Color b, double t, bool additive = false);
     } __attribute__((packed));
 };

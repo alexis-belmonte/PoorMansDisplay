@@ -192,7 +192,7 @@ namespace PMD
             });
         });
 
-        this->_framebufferUpdateMask->copy(*this->_framebuffer, {0, 0});
+        this->_framebufferUpdateMask->blit(*this->_framebuffer, {0, 0});
 
         const std::string &command = commandStream.str();
         ::write(this->_fd, command.c_str(), command.size());

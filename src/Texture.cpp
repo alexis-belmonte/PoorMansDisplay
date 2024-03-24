@@ -81,11 +81,11 @@ namespace PMD
 
         this->access([=, this, &source](Color *targetContents) {
             source.access([=, this](const Color *sourceContents) {
-                for (::size_t y = PMD::y(position);
+                for (double y = PMD::y(position);
                         y < PMD::y(position) + PMD::height(shearRect) * PMD::y(scale) &&
                             y < PMD::y(targetSize);
                         y++)
-                    for (::size_t x = PMD::x(position);
+                    for (double x = PMD::x(position);
                             x < PMD::x(position) + PMD::width(shearRect) * PMD::x(scale) &&
                                 x < PMD::x(targetSize);
                             x++) {
@@ -96,53 +96,93 @@ namespace PMD
 
                         Color sourceColor;
                         switch (this->_filtering) {
-                        case Texture::Filtering::NEAREST:
-                            sourceColor =
-                                sourceContents[
-                                    static_cast<::size_t>(std::round(PMD::y(sourcePos))) * PMD::x(sourceSize)
-                                  + static_cast<::size_t>(std::round(PMD::x(sourcePos)))
-                                ];
-                            break;
+                            case Texture::Filtering::NEAREST: {
+                                sourceColor =
+                                    sourceContents[
+                                        static_cast<::size_t>(std::round(PMD::y(sourcePos))) * PMD::x(sourceSize)
+                                      + static_cast<::size_t>(std::round(PMD::x(sourcePos)))
+                                    ];
+                                break;
+                            }
 
-                        case Texture::Filtering::LINEAR:
-                            Color hColor = Color::lerp(
-                                sourceContents[
-                                    static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
-                                  + static_cast<::size_t>(std::floor(PMD::x(sourcePos)))
-                                ],
-                                sourceContents[
-                                    static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
-                                  + static_cast<::size_t>(std::min(std::ceil(PMD::x(sourcePos)), PMD::x(sourceSize) - 1.0))
-                                ],
-                                PMD::x(sourcePos) - std::floor(PMD::x(sourcePos))
-                            );
+                            case Texture::Filtering::LINEAR: {
+                                Color hColor = Color::lerp(
+                                    sourceContents[
+                                        static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
+                                      + static_cast<::size_t>(std::floor(PMD::x(sourcePos)))
+                                    ],
+                                    sourceContents[
+                                        static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
+                                      + static_cast<::size_t>(std::min(std::ceil(PMD::x(sourcePos)), PMD::x(sourceSize) - 1.0))
+                                    ],
+                                    PMD::x(sourcePos) - std::floor(PMD::x(sourcePos))
+                                );
 
-                            Color vColor = Color::lerp(
-                                sourceContents[
-                                    static_cast<::size_t>(std::min(std::ceil(PMD::y(sourcePos)), PMD::y(sourceSize) - 1.0)) * PMD::x(sourceSize)
-                                  + static_cast<::size_t>(std::floor(PMD::x(sourcePos)))
-                                ],
-                                sourceContents[
-                                    static_cast<::size_t>(std::min(std::ceil(PMD::y(sourcePos)), PMD::y(sourceSize) - 1.0)) * PMD::x(sourceSize)
-                                  + static_cast<::size_t>(std::min(std::ceil(PMD::x(sourcePos)), PMD::x(sourceSize) - 1.0))
-                                ],
-                                PMD::x(sourcePos) - std::floor(PMD::x(sourcePos))
-                            );
+                                Color vColor = Color::lerp(
+                                    sourceContents[
+                                        static_cast<::size_t>(std::min(std::ceil(PMD::y(sourcePos)), PMD::y(sourceSize) - 1.0)) * PMD::x(sourceSize)
+                                      + static_cast<::size_t>(std::floor(PMD::x(sourcePos)))
+                                    ],
+                                    sourceContents[
+                                        static_cast<::size_t>(std::min(std::ceil(PMD::y(sourcePos)), PMD::y(sourceSize) - 1.0)) * PMD::x(sourceSize)
+                                      + static_cast<::size_t>(std::min(std::ceil(PMD::x(sourcePos)), PMD::x(sourceSize) - 1.0))
+                                    ],
+                                    PMD::x(sourcePos) - std::floor(PMD::x(sourcePos))
+                                );
 
-                            sourceColor = Color::lerp(
-                                hColor,
-                                vColor,
-                                PMD::y(sourcePos) - std::floor(PMD::y(sourcePos))
-                            );
+                                sourceColor = Color::lerp(
+                                    hColor,
+                                    vColor,
+                                    PMD::y(sourcePos) - std::floor(PMD::y(sourcePos))
+                                );
 
-                            break;
+                                break;
+                            }
                         }
 
-                        Color *targetColor = &targetContents[x + (PMD::x(targetSize) * y)];
+                        double sourceAlpha = sourceColor.c.a / 255.0;
+
+                        // TODO: support negative scale 
+                        // TODO: support subpixel positioning
                         
-                        *targetColor = mapAlpha
-                            ? sourceColor
-                            : Color::lerp(*targetColor, sourceColor, sourceColor.c.a / 255.0, true);
+                        switch (this->_filtering) {
+                            case Texture::Filtering::NEAREST: {
+                                Color *targetColor = &targetContents[static_cast<::size_t>(
+                                    std::floor(x) + (PMD::x(targetSize) * std::floor(y))
+                                )];
+
+                                if (!mapAlpha)
+                                    sourceColor = Color::lerp(*targetColor, sourceColor, sourceAlpha, true);
+                        
+                                *targetColor = sourceColor;
+                                break;
+                            }
+
+                            case Texture::Filtering::LINEAR: {
+                                Color *target00 = &targetContents[static_cast<::size_t>(
+                                    std::floor(x) + (PMD::x(targetSize) * std::floor(y))
+                                )];
+                                Color *target01 = &targetContents[static_cast<::size_t>(
+                                    std::floor(x) + (PMD::x(targetSize) * std::ceil(y))
+                                )];
+                                Color *target10 = &targetContents[static_cast<::size_t>(
+                                    std::ceil(x) + (PMD::x(targetSize) * std::floor(y))
+                                )];
+                                Color *target11 = &targetContents[static_cast<::size_t>(
+                                    std::ceil(x) + (PMD::x(targetSize) * std::ceil(y))
+                                )];
+
+                                double fracX = PMD::x(position) - std::floor(PMD::x(position));
+                                double fracY = PMD::y(position) - std::floor(PMD::y(position));
+
+                                *target00 = Color::lerp(*target00, sourceColor, sourceAlpha * (1.0 - fracX) * (1.0 - fracY), true);
+                                *target01 = Color::lerp(*target01, sourceColor, sourceAlpha * (1.0 - fracX) *        fracY,  true);
+                                *target10 = Color::lerp(*target10, sourceColor, sourceAlpha *        fracX  * (1.0 - fracY), true);
+                                *target11 = Color::lerp(*target11, sourceColor, sourceAlpha *        fracX  *        fracY,  true);
+
+                                break;
+                            }
+                        }
                     }
             });
         });
