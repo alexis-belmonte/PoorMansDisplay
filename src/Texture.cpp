@@ -143,8 +143,7 @@ namespace PMD
                         double sourceAlpha = sourceColor.c.a / 255.0;
 
                         // TODO: support negative scale 
-                        // TODO: support subpixel positioning
-                        
+
                         switch (this->_filtering) {
                             case Texture::Filtering::NEAREST: {
                                 Color *targetColor = &targetContents[static_cast<::size_t>(
