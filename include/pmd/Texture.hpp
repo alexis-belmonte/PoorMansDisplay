@@ -40,7 +40,8 @@ namespace PMD
             this->clear(Color(r, g, b, a));
         }
 
-        void blit(const Texture &source, Vector2f position, Vector2f scale = {1.0, 1.0}, Rectangle2u shearRect = {0u, 0u, ~0u, ~0u}, bool mapAlpha = false);
+        void copy(const Texture &source, Vector2u position = {0, 0});
+        void blit(const Texture &source, Vector2f position, Vector2f scale = {1.0, 1.0}, Rectangle2u shearRect = {0u, 0u, ~0u, ~0u});
 
         void negate();
 

@@ -167,7 +167,8 @@ namespace PMD
                         size_t i1 =  y      * std::get<0>(size) + x;
                         size_t i2 = (y + 1) * std::get<0>(size) + x;
 
-                        if (!this->_framebufferRedrawRequested && !(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))
+                        if (!this->_framebufferRedrawRequested &&
+                            !(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))
                             continue;
 
                         if (PMD::x(currPos) != x || PMD::y(currPos) != y / 2) {
@@ -187,12 +188,11 @@ namespace PMD
                         
                         currPos = {PMD::x(currPos) + 1, PMD::y(currPos)};
                     }
-                    //currPos = {0, PMD::y(currPos) + 1};
                 }
             });
         });
 
-        this->_framebufferUpdateMask->blit(*this->_framebuffer, {0, 0});
+        this->_framebufferUpdateMask->copy(*this->_framebuffer);
 
         const std::string &command = commandStream.str();
         ::write(this->_fd, command.c_str(), command.size());

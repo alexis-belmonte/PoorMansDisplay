@@ -57,6 +57,26 @@ namespace PMD
         callback(this->_contents.get());
     }
 
+    void Texture::copy(const Texture &source, Vector2u position)
+    {
+        Vector2u targetSize = this->getSize();
+        Vector2u sourceSize = source.getSize();
+
+        this->access([=, &source](Color *targetContents) {
+            source.access([=](const Color *sourceContents) {
+                for (::size_t y = 0; y < PMD::y(sourceSize); y++)
+                    for (::size_t x = 0; x < PMD::x(sourceSize); x++) {
+                        if (PMD::x(position) + x >= PMD::x(targetSize) || PMD::y(position) + y >= PMD::y(targetSize))
+                            continue;
+
+                        targetContents[
+                            (PMD::y(position) + y) * PMD::x(targetSize) + (PMD::x(position) + x)
+                        ] = sourceContents[y * PMD::x(sourceSize) + x];
+                    }
+            });
+        });
+    }
+
     void Texture::clear(Color color)
     {
         this->access([this, color](Color *contents) {
@@ -67,7 +87,7 @@ namespace PMD
         });
     }
 
-    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, Rectangle2u shearRect, bool mapAlpha)
+    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, Rectangle2u shearRect)
     {
         Vector2u targetSize = this->getSize();
         Vector2u sourceSize = source.getSize();
@@ -150,10 +170,7 @@ namespace PMD
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
 
-                                if (!mapAlpha)
-                                    sourceColor = Color::lerp(*targetColor, sourceColor, sourceAlpha, true);
-                        
-                                *targetColor = sourceColor;
+                                *targetColor = Color::lerp(*targetColor, sourceColor, sourceAlpha, true);
                                 break;
                             }
 
