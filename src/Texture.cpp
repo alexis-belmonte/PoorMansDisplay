@@ -160,8 +160,6 @@ namespace PMD
                             }
                         }
 
-                        double sourceAlpha = sourceColor.c.a / 255.0;
-
                         // TODO: support negative scale 
 
                         switch (this->_filtering) {
@@ -170,7 +168,7 @@ namespace PMD
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
 
-                                *targetColor = Color::lerp(*targetColor, sourceColor, sourceAlpha, true);
+                                *targetColor = Color::blend(*targetColor, sourceColor);
                                 break;
                             }
 
@@ -179,10 +177,10 @@ namespace PMD
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
                                 Color *target01 = &targetContents[static_cast<::size_t>(
-                                    std::floor(x) + (PMD::x(targetSize) * std::ceil(y))
+                                    std::ceil(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
                                 Color *target10 = &targetContents[static_cast<::size_t>(
-                                    std::ceil(x) + (PMD::x(targetSize) * std::floor(y))
+                                    std::floor(x) + (PMD::x(targetSize) * std::ceil(y))
                                 )];
                                 Color *target11 = &targetContents[static_cast<::size_t>(
                                     std::ceil(x) + (PMD::x(targetSize) * std::ceil(y))
@@ -191,10 +189,10 @@ namespace PMD
                                 double fracX = PMD::x(position) - std::floor(PMD::x(position));
                                 double fracY = PMD::y(position) - std::floor(PMD::y(position));
 
-                                *target00 = Color::lerp(*target00, sourceColor, sourceAlpha * (1.0 - fracX) * (1.0 - fracY), true);
-                                *target01 = Color::lerp(*target01, sourceColor, sourceAlpha * (1.0 - fracX) *        fracY,  true);
-                                *target10 = Color::lerp(*target10, sourceColor, sourceAlpha *        fracX  * (1.0 - fracY), true);
-                                *target11 = Color::lerp(*target11, sourceColor, sourceAlpha *        fracX  *        fracY,  true);
+                                *target00 = Color::blend(*target00, {0, 0, 0, 127}, 0.5);
+                                //*target01 = Color::blend(*target01, sourceColor, 1.0);
+                                //*target10 = Color::blend(*target10, sourceColor, 1.0);
+                                //*target11 = Color::blend(*target11, sourceColor, 1.0);
 
                                 break;
                             }

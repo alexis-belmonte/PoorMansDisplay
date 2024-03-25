@@ -17,7 +17,6 @@ int main(void)
     redSquare.clear(0, 0, 0, 127);
 
     display.setWindowTitle("Input Demo");
-    framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
     
     bool up = false;
     bool down = false;
@@ -36,6 +35,10 @@ int main(void)
                     }
                     if (event.key == 'a')
                         redSquare.clear(255, 0, 0, 127);
+                    if (event.key == 'f')
+                        framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
+                    if (event.key == 'g')
+                        framebuffer.setFiltering(PMD::Texture::Filtering::NEAREST);
 
                     if (event.key == 'i')
                         up = true;
