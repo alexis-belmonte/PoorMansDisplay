@@ -25,7 +25,7 @@ int main(void)
 
     display.setWindowTitle("Spinner/Shear Rect Demo");
 
-    framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
+    framebuffer.setFiltering(PMD::Texture::Filtering::NEAREST);
 
     bool running = true;
     while (running) {
@@ -40,7 +40,7 @@ int main(void)
         );
 
         framebuffer.clear();
-        framebuffer.blit(spinnerTexture, {0, 0}, {3.0, 2.0}, spinnerTextureRects.at(spinnerTextureIndex));
+        framebuffer.blit(spinnerTexture, {100, 100}, {1.0, 1.0}, 125.0, spinnerTextureRects.at(spinnerTextureIndex));
 
         spinnerTextureIndex = ++spinnerTextureIndex % spinnerTextureRects.size();
         

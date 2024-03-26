@@ -87,7 +87,7 @@ namespace PMD
         });
     }
 
-    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, Rectangle2u shearRect)
+    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, double rotation, Rectangle2u shearRect)
     {
         Vector2u targetSize = this->getSize();
         Vector2u sourceSize = source.getSize();
@@ -112,16 +112,14 @@ namespace PMD
             std::abs(PMD::y(scale))
         };
 
+        double thetha = rotation * M_PI / 180.0;
+
         this->access([=, this, &source](Color *targetContents) {
             source.access([=, this](const Color *sourceContents) {
                 for (double y = PMD::y(position);
-                        y < PMD::y(position) + PMD::height(shearRect) * PMD::y(scale) &&
-                            y < PMD::y(targetSize);
-                        y++)
+                        y < PMD::y(position) + PMD::height(shearRect) * PMD::y(scale); y++)
                     for (double x = PMD::x(position);
-                            x < PMD::x(position) + PMD::width(shearRect) * PMD::x(scale) &&
-                                x < PMD::x(targetSize);
-                            x++) {
+                            x < PMD::x(position) + PMD::width(shearRect) * PMD::x(scale); x++) {
                         Vector2f sourcePos{
                             negativeScaleX ?
                                 PMD::x(shearRect) + (PMD::width(shearRect)  - 1 - (x - PMD::x(position)) / PMD::x(scale)) :
@@ -177,16 +175,16 @@ namespace PMD
                             }
                         }
 
-                        // TODO: manage out-of-bounds access -> compensate (-1, -1 and sizeX - 1, sizeY - 1)
-                        // TODO: manage rotation
+                        double rX = std::cos(thetha) * (x - PMD::x(position)) - std::sin(thetha) * (y - PMD::y(position)) + PMD::x(position);
+                        double rY = std::sin(thetha) * (x - PMD::x(position)) + std::cos(thetha) * (y - PMD::y(position)) + PMD::y(position);
 
                         switch (this->_filtering) {
                             case Texture::Filtering::NEAREST: {
                                 Color *targetColor = &targetContents[static_cast<::size_t>(
-                                    std::floor(x) + (PMD::x(targetSize) * std::floor(y))
+                                    std::floor(rX) + (PMD::x(targetSize) * std::floor(rY))
                                 )];
 
-                                if (x >= 0.0 && x < PMD::x(targetSize) && y >= 0.0 && y < PMD::y(targetSize))
+                                if (rX >= 0.0 && rX < PMD::x(targetSize) && rY >= 0.0 && rY < PMD::y(targetSize))
                                     *targetColor = Color::blend(*targetColor, sourceColor);
                                 break;
                             }
