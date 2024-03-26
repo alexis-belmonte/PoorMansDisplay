@@ -14,10 +14,10 @@ static void setTextureColor(PMD::Texture &target, PMD::Texture &source, PMD::Col
     target.access([&source, color, size](PMD::Color *targetContents) {
         source.access([targetContents, color, size](PMD::Color *sourceContents) {
             for (::size_t i = 0; i < PMD::x(size) * PMD::y(size); i++) {
-                targetContents[i].c.a = sourceContents[i].c.a;
                 targetContents[i].c.r = sourceContents[i].c.r * 1.0 / 255.0 * color.c.r;
                 targetContents[i].c.g = sourceContents[i].c.g * 1.0 / 255.0 * color.c.g;
                 targetContents[i].c.b = sourceContents[i].c.b * 1.0 / 255.0 * color.c.b;
+                targetContents[i].c.a = sourceContents[i].c.a;
             }
         });
     });
@@ -43,8 +43,8 @@ int main(void)
 
     double x;
     double y;
-    double xd = 0.4;
-    double yd = 0.4;
+    double xd = 0.05;
+    double yd = 0.05;
 
     bool running = true;
 

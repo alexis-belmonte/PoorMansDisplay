@@ -173,26 +173,26 @@ namespace PMD
                             }
 
                             case Texture::Filtering::LINEAR: {
-                                Color *target00 = &targetContents[static_cast<::size_t>(
+                                Color *targetAA = &targetContents[static_cast<::size_t>(
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
-                                Color *target01 = &targetContents[static_cast<::size_t>(
-                                    std::ceil(x) + (PMD::x(targetSize) * std::floor(y))
-                                )];
-                                Color *target10 = &targetContents[static_cast<::size_t>(
+                                Color *targetAB = &targetContents[static_cast<::size_t>(
                                     std::floor(x) + (PMD::x(targetSize) * std::ceil(y))
                                 )];
-                                Color *target11 = &targetContents[static_cast<::size_t>(
+                                Color *targetBA = &targetContents[static_cast<::size_t>(
+                                    std::ceil(x) + (PMD::x(targetSize) * std::floor(y))
+                                )];
+                                Color *targetBB = &targetContents[static_cast<::size_t>(
                                     std::ceil(x) + (PMD::x(targetSize) * std::ceil(y))
                                 )];
 
                                 double fracX = PMD::x(position) - std::floor(PMD::x(position));
                                 double fracY = PMD::y(position) - std::floor(PMD::y(position));
 
-                                *target00 = Color::blend(*target00, {0, 0, 0, 127}, 0.5);
-                                //*target01 = Color::blend(*target01, sourceColor, 1.0);
-                                //*target10 = Color::blend(*target10, sourceColor, 1.0);
-                                //*target11 = Color::blend(*target11, sourceColor, 1.0);
+                                *targetAA = Color::blend(*targetAA, sourceColor, (1.0 - fracX) * (1.0 - fracY));
+                                *targetAB = Color::blend(*targetAB, sourceColor, (1.0 - fracX) * fracY);
+                                *targetBA = Color::blend(*targetBA, sourceColor, fracX * (1.0 - fracY));
+                                *targetBB = Color::blend(*targetBB, sourceColor, fracX * fracY);
 
                                 break;
                             }

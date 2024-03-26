@@ -34,7 +34,7 @@ namespace PMD
         void access(std::function<void(Color *)> &&callback);
         void access(std::function<void(const Color *)> &&callback) const;
 
-        void clear(Color color = {0, 0, 0, 0});
+        void clear(Color color = {0, 0, 0, 255});
         void clear(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255)
         {
             this->clear(Color(r, g, b, a));
