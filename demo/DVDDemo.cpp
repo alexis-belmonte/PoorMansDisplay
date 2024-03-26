@@ -43,8 +43,8 @@ int main(void)
 
     double x;
     double y;
-    double xd = 0.05;
-    double yd = 0.05;
+    double xd = 0.4;
+    double yd = 0.4;
 
     bool running = true;
 
