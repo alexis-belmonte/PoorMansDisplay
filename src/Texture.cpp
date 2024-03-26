@@ -99,6 +99,19 @@ namespace PMD
             std::min(PMD::height(shearRect), PMD::y(sourceSize) - PMD::y(shearRect))
         };
 
+        bool negativeScaleX = PMD::x(scale) < 0.0;
+        bool negativeScaleY = PMD::y(scale) < 0.0;
+
+        position = {
+            PMD::x(position) - (negativeScaleX ? PMD::width(shearRect) : 0.0),
+            PMD::y(position) - (negativeScaleY ? PMD::height(shearRect) : 0.0)
+        };
+
+        scale = {
+            std::abs(PMD::x(scale)),
+            std::abs(PMD::y(scale))
+        };
+
         this->access([=, this, &source](Color *targetContents) {
             source.access([=, this](const Color *sourceContents) {
                 for (double y = PMD::y(position);
@@ -110,8 +123,12 @@ namespace PMD
                                 x < PMD::x(targetSize);
                             x++) {
                         Vector2f sourcePos{
-                            PMD::x(shearRect) + (x - PMD::x(position)) / PMD::x(scale),
-                            PMD::y(shearRect) + (y - PMD::y(position)) / PMD::y(scale)
+                            negativeScaleX ?
+                                PMD::x(shearRect) + (PMD::width(shearRect)  - 1 - (x - PMD::x(position)) / PMD::x(scale)) :
+                                PMD::x(shearRect) + (x - PMD::x(position)) / PMD::x(scale),
+                            negativeScaleY ?
+                                PMD::y(shearRect) + (PMD::height(shearRect) - 1 - (y - PMD::y(position)) / PMD::y(scale)) :
+                                PMD::y(shearRect) + (y - PMD::y(position)) / PMD::y(scale)
                         };
 
                         Color sourceColor;
@@ -160,7 +177,8 @@ namespace PMD
                             }
                         }
 
-                        // TODO: support negative scale 
+                        // TODO: manage out-of-bounds access -> compensate (-1, -1 and sizeX - 1, sizeY - 1)
+                        // TODO: manage rotation
 
                         switch (this->_filtering) {
                             case Texture::Filtering::NEAREST: {
@@ -168,7 +186,8 @@ namespace PMD
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
 
-                                *targetColor = Color::blend(*targetColor, sourceColor);
+                                if (x >= 0.0 && x < PMD::x(targetSize) && y >= 0.0 && y < PMD::y(targetSize))
+                                    *targetColor = Color::blend(*targetColor, sourceColor);
                                 break;
                             }
 
@@ -189,10 +208,16 @@ namespace PMD
                                 double fracX = PMD::x(position) - std::floor(PMD::x(position));
                                 double fracY = PMD::y(position) - std::floor(PMD::y(position));
 
-                                *targetAA = Color::blend(*targetAA, sourceColor, (1.0 - fracX) * (1.0 - fracY));
-                                *targetAB = Color::blend(*targetAB, sourceColor, (1.0 - fracX) * fracY);
-                                *targetBA = Color::blend(*targetBA, sourceColor, fracX * (1.0 - fracY));
-                                *targetBB = Color::blend(*targetBB, sourceColor, fracX * fracY);
+                                // TODO: manage out-of-bounds access -> compensate (-1, -1 and sizeX - 1, sizeY - 1)
+
+                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
+                                    *targetAA = Color::blend(*targetAA, sourceColor, (1.0 - fracX) * (1.0 - fracY));
+                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
+                                    *targetAB = Color::blend(*targetAB, sourceColor, (1.0 - fracX) *        fracY);
+                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
+                                    *targetBA = Color::blend(*targetBA, sourceColor,        fracX  * (1.0 - fracY));
+                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
+                                    *targetBB = Color::blend(*targetBB, sourceColor,        fracX  *        fracY);
 
                                 break;
                             }

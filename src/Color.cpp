@@ -8,19 +8,19 @@ namespace PMD
     {
         return Color(
             static_cast<::uint8_t>(
-                std::clamp((1.0 * a.c.r * a.c.a + alpha * b.c.r * b.c.a) / (a.c.a + b.c.a * alpha),
+                std::clamp((1.0 * a.c.r * a.c.a + alpha * b.c.r * b.c.a) / (1.0 * a.c.a + alpha * b.c.a),
                            0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp((1.0 * a.c.g * a.c.a + alpha * b.c.g * b.c.a) / (a.c.a + b.c.a * alpha),
+                std::clamp((1.0 * a.c.g * a.c.a + alpha * b.c.g * b.c.a) / (1.0 * a.c.a + alpha * b.c.a),
                            0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp((1.0 * a.c.b * a.c.a + alpha * b.c.b * b.c.a) / (a.c.a + b.c.a * alpha),
+                std::clamp((1.0 * a.c.b * a.c.a + alpha * b.c.b * b.c.a) / (1.0 * a.c.a + alpha * b.c.a),
                            0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp(a.c.a + b.c.a * alpha, 0.0, 255.0)
+                std::clamp(1.0 * a.c.a + alpha * b.c.a, 0.0, 255.0)
             )
         );
     }
