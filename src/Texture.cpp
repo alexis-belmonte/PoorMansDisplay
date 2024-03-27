@@ -187,41 +187,39 @@ namespace PMD
 
                         switch (this->_filtering) {
                             case Texture::Filtering::NEAREST: {
+                                if (std::floor(x) < 0.0 || std::floor(x) >= PMD::x(targetSize) ||
+                                    std::floor(y) < 0.0 || std::floor(y) >= PMD::y(targetSize))
+                                    break;
+
                                 Color *targetColor = &targetContents[static_cast<::size_t>(
-                                    std::round(x) + (PMD::x(targetSize) * std::round(y))
+                                    std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
 
-                                *targetColor = Color::lerp(*targetColor, sourceColor, 1.0);
+                                *targetColor = Color::lerp(*targetColor, sourceColor, targetColor->c.a / 255.0 * sourceColor.c.a / 255.0);
                                 break;
                             }
 
                             case Texture::Filtering::LINEAR: {
-                                Color *targetAA = &targetContents[static_cast<::size_t>(
-                                    std::floor(x) + (PMD::x(targetSize) * std::floor(y))
-                                )];
-                                Color *targetAB = &targetContents[static_cast<::size_t>(
-                                    std::floor(x) + (PMD::x(targetSize) * std::ceil(y))
-                                )];
-                                Color *targetBA = &targetContents[static_cast<::size_t>(
-                                    std::ceil(x) + (PMD::x(targetSize) * std::floor(y))
-                                )];
-                                Color *targetBB = &targetContents[static_cast<::size_t>(
-                                    std::ceil(x) + (PMD::x(targetSize) * std::ceil(y))
-                                )];
-
                                 double fracX = PMD::x(position) - std::floor(PMD::x(position));
                                 double fracY = PMD::y(position) - std::floor(PMD::y(position));
 
-                                // TODO: manage out-of-bounds access -> compensate (-1, -1 and sizeX - 1, sizeY - 1)
+                                for (const auto &[position, frac] : std::vector<std::pair<Vector2f, double>>{
+                                    {Vector2f{std::floor(x), std::floor(y)}, (1.0 - fracX) * (1.0 - fracY)},
+                                    {Vector2f{std::floor(x), std::ceil(y)},  (1.0 - fracX) * (      fracY)},
+                                    {Vector2f{std::ceil(x), std::floor(y)},  (      fracX) * (1.0 - fracY)},
+                                    {Vector2f{std::ceil(x), std::ceil(y)},   (      fracX) * (      fracY)}
+                                }) {
+                                    if (PMD::x(position) < 0.0 || PMD::x(position) >= PMD::x(targetSize) ||
+                                        PMD::y(position) < 0.0 || PMD::y(position) >= PMD::y(targetSize))
+                                        continue;
 
-                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
-                                    *targetAA = Color::blend(*targetAA, sourceColor, (1.0 - fracX) * (1.0 - fracY));
-                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
-                                    *targetAB = Color::blend(*targetAB, sourceColor, (1.0 - fracX) *        fracY);
-                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
-                                    *targetBA = Color::blend(*targetBA, sourceColor,        fracX  * (1.0 - fracY));
-                                if (x >= 0.0 && x < PMD::x(targetSize) - 1.0 && y >= 0.0 && y < PMD::y(targetSize) - 1.0)
-                                    *targetBB = Color::blend(*targetBB, sourceColor,        fracX  *        fracY);
+                                    Color *target = &targetContents[static_cast<::size_t>(
+                                        PMD::x(position) + (PMD::x(targetSize) * PMD::y(position))
+                                    )];
+
+                                    // TODO: manage out-of-bounds access -> compensate (-1, -1 and sizeX - 1, sizeY - 1)
+                                    *target = Color::blend(*target, sourceColor, frac);
+                                }
 
                                 break;
                             }
