@@ -40,7 +40,7 @@ int main(void)
         );
 
         framebuffer.clear();
-        framebuffer.blit(spinnerTexture, {100, 100}, {1.0, 1.0}, 125.0, spinnerTextureRects.at(spinnerTextureIndex));
+        framebuffer.blit(spinnerTexture, {50, 50}, {1.2, 1.2}, 33.0, spinnerTextureRects.at(spinnerTextureIndex));
 
         spinnerTextureIndex = ++spinnerTextureIndex % spinnerTextureRects.size();
         
