@@ -115,12 +115,65 @@ namespace PMD
 
         double thetha = angle * std::numbers::pi / 180.0;
 
+        double sinThetha = std::sin(thetha);
+        double cosThetha = std::cos(thetha);
+
+        Vector2f startPoint{ 0, 0 };
+        Vector2f endPoint{ 0, 0 };
+
+        this->access([&](Color *targetContents) {
+            for (const Vector2f &point : std::vector<Vector2f>{
+                {0.0,                                   0.0},
+                {PMD::width(shearRect) * PMD::x(scale), 0.0},
+                {0.0,                                   PMD::height(shearRect) * PMD::y(scale)},
+                {PMD::width(shearRect) * PMD::x(scale), PMD::height(shearRect) * PMD::y(scale)}
+            }) {
+                Vector2f rotatedPoint = {
+                    PMD::x(point) * cosThetha - PMD::y(point) * sinThetha,
+                    PMD::x(point) * sinThetha + PMD::y(point) * cosThetha
+                };
+
+                startPoint = {
+                    std::min(PMD::x(startPoint), PMD::x(rotatedPoint)),
+                    std::min(PMD::y(startPoint), PMD::y(rotatedPoint))
+                };
+
+                endPoint = {
+                    std::max(PMD::x(endPoint), PMD::x(rotatedPoint)),
+                    std::max(PMD::y(endPoint), PMD::y(rotatedPoint))
+                };
+
+                targetContents[
+                    static_cast<::size_t>(std::floor(PMD::x(rotatedPoint) + PMD::x(position)) +
+                        (PMD::x(targetSize) * std::floor(PMD::y(rotatedPoint) + PMD::y(position))))
+                ] = Color(0, 0, 255, 255);
+            }
+        });
+
+        startPoint = {
+            PMD::x(startPoint) + PMD::x(position),
+            PMD::y(startPoint) + PMD::y(position)
+        };
+
+        endPoint = {
+            PMD::x(endPoint) + PMD::x(position),
+            PMD::y(endPoint) + PMD::y(position)
+        };
+
         this->access([=, this, &source](Color *targetContents) {
             source.access([=, this](const Color *sourceContents) {
-                for (double y = PMD::y(position);
-                        y < PMD::y(position) + PMD::height(shearRect) * PMD::y(scale); y++)
-                    for (double x = PMD::x(position);
-                            x < PMD::x(position) + PMD::width(shearRect) * PMD::x(scale); x++) {
+                Color *startPointPixel = &targetContents[static_cast<::size_t>(
+                    std::floor(PMD::x(startPoint)) + (PMD::x(targetSize) * std::floor(PMD::y(startPoint)))
+                )];
+                Color *endPointPixel = &targetContents[static_cast<::size_t>(
+                    std::floor(PMD::x(endPoint)) + (PMD::x(targetSize) * std::floor(PMD::y(endPoint)))
+                )];
+
+                *startPointPixel = Color(255, 0, 0, 255);
+                *endPointPixel = Color(255, 0, 0, 255);
+
+                for (double y = PMD::y(startPoint); y < PMD::y(endPoint); y++)
+                    for (double x = PMD::x(startPoint); x < PMD::x(endPoint); x++) {
                         Vector2f sourcePos{
                             negativeScaleX ?
                                 (PMD::width(shearRect)  - 1 - (x - PMD::x(position)) / PMD::x(scale)) :
@@ -191,11 +244,11 @@ namespace PMD
                                     std::floor(y) < 0.0 || std::floor(y) >= PMD::y(targetSize))
                                     break;
 
-                                Color *targetColor = &targetContents[static_cast<::size_t>(
+                                Color *target = &targetContents[static_cast<::size_t>(
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
 
-                                *targetColor = Color::lerp(*targetColor, sourceColor, targetColor->c.a / 255.0 * sourceColor.c.a / 255.0);
+                                *target = Color::blend(*target, sourceColor, 1.0);
                                 break;
                             }
 
@@ -217,7 +270,6 @@ namespace PMD
                                         PMD::x(position) + (PMD::x(targetSize) * PMD::y(position))
                                     )];
 
-                                    // TODO: manage out-of-bounds access -> compensate (-1, -1 and sizeX - 1, sizeY - 1)
                                     *target = Color::blend(*target, sourceColor, frac);
                                 }
 
