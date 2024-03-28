@@ -42,14 +42,14 @@ int main(void)
         );
 
         framebuffer.clear();
-        framebuffer.blit(spinnerTexture, {75, 75}, {1.2, 1.2}, i, {16, 16}, spinnerTextureRects.at(spinnerTextureIndex));
+        framebuffer.blit(spinnerTexture, {50, 50}, {1.2, 1.2}, i, {0, 0}, spinnerTextureRects.at(spinnerTextureIndex));
 
         spinnerTextureIndex = ++spinnerTextureIndex % spinnerTextureRects.size();
         
         display.present();
 
         std::this_thread::sleep_for(60ms);
-        i += 1;
+        i += 4;
     }
 
     return 0;

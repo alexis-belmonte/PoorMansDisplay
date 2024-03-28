@@ -121,34 +121,27 @@ namespace PMD
         Vector2f startPoint{ 0, 0 };
         Vector2f endPoint{ 0, 0 };
 
-        this->access([&](Color *targetContents) {
-            for (const Vector2f &point : std::vector<Vector2f>{
-                {0.0,                                   0.0},
-                {PMD::width(shearRect) * PMD::x(scale), 0.0},
-                {0.0,                                   PMD::height(shearRect) * PMD::y(scale)},
-                {PMD::width(shearRect) * PMD::x(scale), PMD::height(shearRect) * PMD::y(scale)}
-            }) {
-                Vector2f rotatedPoint = {
-                    (PMD::x(point) - PMD::x(center)) * cosThetha - (PMD::y(point) - PMD::y(center))* sinThetha,
-                    (PMD::x(point) - PMD::x(center)) * sinThetha + (PMD::y(point) - PMD::y(center)) * cosThetha
-                };
+        for (const Vector2f &point : std::vector<Vector2f>{
+            {0.0,                                   0.0},
+            {PMD::width(shearRect) * PMD::x(scale), 0.0},
+            {0.0,                                   PMD::height(shearRect) * PMD::y(scale)},
+            {PMD::width(shearRect) * PMD::x(scale), PMD::height(shearRect) * PMD::y(scale)}
+        }) {
+            Vector2f rotatedPoint = {
+                (PMD::x(point) - PMD::x(center)) * cosThetha - (PMD::y(point) - PMD::y(center))* sinThetha,
+                (PMD::x(point) - PMD::x(center)) * sinThetha + (PMD::y(point) - PMD::y(center)) * cosThetha
+            };
 
-                startPoint = {
-                    std::min(PMD::x(startPoint), PMD::x(rotatedPoint)),
-                    std::min(PMD::y(startPoint), PMD::y(rotatedPoint))
-                };
+            startPoint = {
+                std::min(PMD::x(startPoint), PMD::x(rotatedPoint)),
+                std::min(PMD::y(startPoint), PMD::y(rotatedPoint))
+            };
 
-                endPoint = {
-                    std::max(PMD::x(endPoint), PMD::x(rotatedPoint)),
-                    std::max(PMD::y(endPoint), PMD::y(rotatedPoint))
-                };
-
-                targetContents[
-                    static_cast<::size_t>(std::floor(PMD::x(rotatedPoint) + PMD::x(position)) +
-                        (PMD::x(targetSize) * std::floor(PMD::y(rotatedPoint) + PMD::y(position))))
-                ] = Color(0, 0, 255, 255);
-            }
-        });
+            endPoint = {
+                std::max(PMD::x(endPoint), PMD::x(rotatedPoint)),
+                std::max(PMD::y(endPoint), PMD::y(rotatedPoint))
+            };
+        }
 
         startPoint = {
             PMD::x(startPoint) + PMD::x(position),
@@ -162,16 +155,6 @@ namespace PMD
 
         this->access([=, this, &source](Color *targetContents) {
             source.access([=, this](const Color *sourceContents) {
-                Color *startPointPixel = &targetContents[static_cast<::size_t>(
-                    std::floor(PMD::x(startPoint)) + (PMD::x(targetSize) * std::floor(PMD::y(startPoint)))
-                )];
-                Color *endPointPixel = &targetContents[static_cast<::size_t>(
-                    std::floor(PMD::x(endPoint)) + (PMD::x(targetSize) * std::floor(PMD::y(endPoint)))
-                )];
-
-                *startPointPixel = Color(255, 0, 0, 255);
-                *endPointPixel = Color(255, 0, 0, 255);
-
                 for (double y = PMD::y(startPoint); y < PMD::y(endPoint); y++)
                     for (double x = PMD::x(startPoint); x < PMD::x(endPoint); x++) {
                         Vector2f sourcePos{
@@ -187,14 +170,14 @@ namespace PMD
                             PMD::x(shearRect) + PMD::x(sourcePos) * std::cos(thetha) + PMD::y(sourcePos) * std::sin(thetha) + PMD::x(center) / PMD::x(scale),
                             PMD::y(shearRect) - PMD::x(sourcePos) * std::sin(thetha) + PMD::y(sourcePos) * std::cos(thetha) + PMD::y(center) / PMD::y(scale)
                         };
-
-                        if (PMD::x(sourcePos) < PMD::x(shearRect) || PMD::x(sourcePos) >= PMD::x(shearRect) + PMD::width(shearRect) ||
-                            PMD::y(sourcePos) < PMD::y(shearRect) || PMD::y(sourcePos) >= PMD::y(shearRect) + PMD::height(shearRect))
-                            continue;
                         
                         Color sourceColor;
                         switch (this->_filtering) {
                             case Texture::Filtering::NEAREST: {
+                                if (PMD::x(sourcePos) < PMD::x(shearRect) || PMD::x(sourcePos) >= PMD::x(shearRect) + PMD::width(shearRect) ||
+                                    PMD::y(sourcePos) < PMD::y(shearRect) || PMD::y(sourcePos) >= PMD::y(shearRect) + PMD::height(shearRect))
+                                    continue;
+
                                 sourceColor =
                                     sourceContents[
                                         static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
@@ -204,29 +187,27 @@ namespace PMD
                             }
 
                             case Texture::Filtering::LINEAR: {
+                                #define SOURCE_OR_TARGET(X, Y) \
+                                   (X >= PMD::x(shearRect) && X < PMD::x(shearRect) + PMD::width(shearRect)  && X < PMD::x(sourceSize) && \
+                                    Y >= PMD::y(shearRect) && Y < PMD::y(shearRect) + PMD::height(shearRect) && Y < PMD::y(sourceSize)) \
+                                      ? sourceContents[ \
+                                            static_cast<::size_t>((Y) * PMD::x(sourceSize) + (X)) \
+                                        ] \
+                                      : Color{0, 0, 0, 255}
+
                                 Color hColor = Color::lerp(
-                                    sourceContents[
-                                        static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
-                                      + static_cast<::size_t>(std::floor(PMD::x(sourcePos)))
-                                    ],
-                                    sourceContents[
-                                        static_cast<::size_t>(std::floor(PMD::y(sourcePos))) * PMD::x(sourceSize)
-                                      + static_cast<::size_t>(std::min(std::ceil(PMD::x(sourcePos)), PMD::x(sourceSize) - 1.0))
-                                    ],
+                                    SOURCE_OR_TARGET(std::floor(PMD::x(sourcePos)), std::floor(PMD::y(sourcePos))),
+                                    SOURCE_OR_TARGET(std::ceil(PMD::x(sourcePos)), std::floor(PMD::y(sourcePos))),
                                     PMD::x(sourcePos) - std::floor(PMD::x(sourcePos))
+                                );
+                                
+                                Color vColor = Color::lerp(
+                                    SOURCE_OR_TARGET(std::floor(PMD::x(sourcePos)), std::floor(PMD::y(sourcePos))),
+                                    SOURCE_OR_TARGET(std::floor(PMD::x(sourcePos)), std::ceil(PMD::y(sourcePos))),
+                                    PMD::y(sourcePos) - std::floor(PMD::y(sourcePos))
                                 );
 
-                                Color vColor = Color::lerp(
-                                    sourceContents[
-                                        static_cast<::size_t>(std::min(std::ceil(PMD::y(sourcePos)), PMD::y(sourceSize) - 1.0)) * PMD::x(sourceSize)
-                                      + static_cast<::size_t>(std::floor(PMD::x(sourcePos)))
-                                    ],
-                                    sourceContents[
-                                        static_cast<::size_t>(std::min(std::ceil(PMD::y(sourcePos)), PMD::y(sourceSize) - 1.0)) * PMD::x(sourceSize)
-                                      + static_cast<::size_t>(std::min(std::ceil(PMD::x(sourcePos)), PMD::x(sourceSize) - 1.0))
-                                    ],
-                                    PMD::x(sourcePos) - std::floor(PMD::x(sourcePos))
-                                );
+                                #undef SOURCE_OR_TARGET
 
                                 sourceColor = Color::lerp(
                                     hColor,

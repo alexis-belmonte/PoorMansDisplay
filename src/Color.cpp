@@ -6,21 +6,29 @@ namespace PMD
 {
     Color Color::blend(Color a, Color b, double alpha)
     {
+        alpha = std::clamp(alpha, 0.0, 1.0);
+
+        double aAlpha = a.c.a / 255.0;
+        double bAlpha = b.c.a / 255.0;
+
+        double rAlpha = aAlpha + alpha * (1.0 - aAlpha);
+
+        // Let's not assume rAlpha can never be zero
+        if (rAlpha < 1e-6)
+            return Color(0, 0, 0, 0);
+
         return Color(
             static_cast<::uint8_t>(
-                std::clamp((1.0 * a.c.r * a.c.a + alpha * b.c.r * b.c.a) / (1.0 * a.c.a + alpha * b.c.a),
-                           0.0, 255.0)
+                std::clamp((a.c.r * aAlpha + alpha * b.c.r * bAlpha) / rAlpha, 0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp((1.0 * a.c.g * a.c.a + alpha * b.c.g * b.c.a) / (1.0 * a.c.a + alpha * b.c.a),
-                           0.0, 255.0)
+                std::clamp((a.c.g * aAlpha + alpha * b.c.g * bAlpha) / rAlpha, 0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp((1.0 * a.c.b * a.c.a + alpha * b.c.b * b.c.a) / (1.0 * a.c.a + alpha * b.c.a),
-                           0.0, 255.0)
+                std::clamp((a.c.b * aAlpha + alpha * b.c.b * bAlpha) / rAlpha, 0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp(1.0 * a.c.a + alpha * b.c.a, 0.0, 255.0)
+                rAlpha * 255.0
             )
         );
     }
