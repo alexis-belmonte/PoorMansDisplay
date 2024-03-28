@@ -8,10 +8,7 @@ namespace PMD
     {
         alpha = std::clamp(alpha, 0.0, 1.0);
 
-        double aAlpha = a.c.a / 255.0;
-        double bAlpha = b.c.a / 255.0;
-
-        double rAlpha = aAlpha + alpha * (1.0 - aAlpha);
+        double rAlpha = a.c.a / 255.0 + alpha * (1.0 - a.c.a / 255.0);
 
         // Let's not assume rAlpha can never be zero
         if (rAlpha < 1e-6)
@@ -19,13 +16,13 @@ namespace PMD
 
         return Color(
             static_cast<::uint8_t>(
-                std::clamp((a.c.r * aAlpha + alpha * b.c.r * bAlpha) / rAlpha, 0.0, 255.0)
+                std::clamp((a.c.r * a.c.a / 255.0 + alpha * b.c.r * b.c.a / 255.0) / rAlpha, 0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp((a.c.g * aAlpha + alpha * b.c.g * bAlpha) / rAlpha, 0.0, 255.0)
+                std::clamp((a.c.g * a.c.a / 255.0 + alpha * b.c.g * b.c.a / 255.0) / rAlpha, 0.0, 255.0)
             ),
             static_cast<::uint8_t>(
-                std::clamp((a.c.b * aAlpha + alpha * b.c.b * bAlpha) / rAlpha, 0.0, 255.0)
+                std::clamp((a.c.b * a.c.a / 255.0 + alpha * b.c.b * b.c.a / 255.0) / rAlpha, 0.0, 255.0)
             ),
             static_cast<::uint8_t>(
                 rAlpha * 255.0
