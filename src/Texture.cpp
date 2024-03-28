@@ -88,7 +88,7 @@ namespace PMD
         });
     }
 
-    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, double angle, Rectangle2u shearRect)
+    void Texture::blit(const Texture &source, Vector2f position, Vector2f scale, double angle, Vector2f center, Rectangle2u shearRect)
     {
         Vector2u targetSize = this->getSize();
         Vector2u sourceSize = source.getSize();
@@ -129,8 +129,8 @@ namespace PMD
                 {PMD::width(shearRect) * PMD::x(scale), PMD::height(shearRect) * PMD::y(scale)}
             }) {
                 Vector2f rotatedPoint = {
-                    PMD::x(point) * cosThetha - PMD::y(point) * sinThetha,
-                    PMD::x(point) * sinThetha + PMD::y(point) * cosThetha
+                    (PMD::x(point) - PMD::x(center)) * cosThetha - (PMD::y(point) - PMD::y(center))* sinThetha,
+                    (PMD::x(point) - PMD::x(center)) * sinThetha + (PMD::y(point) - PMD::y(center)) * cosThetha
                 };
 
                 startPoint = {
@@ -184,8 +184,8 @@ namespace PMD
                         };
 
                         sourcePos = {
-                            PMD::x(shearRect) + PMD::x(sourcePos) * std::cos(thetha) + PMD::y(sourcePos) * std::sin(thetha),
-                            PMD::y(shearRect) - PMD::x(sourcePos) * std::sin(thetha) + PMD::y(sourcePos) * std::cos(thetha)
+                            PMD::x(shearRect) + PMD::x(sourcePos) * std::cos(thetha) + PMD::y(sourcePos) * std::sin(thetha) + PMD::x(center) / PMD::x(scale),
+                            PMD::y(shearRect) - PMD::x(sourcePos) * std::sin(thetha) + PMD::y(sourcePos) * std::cos(thetha) + PMD::y(center) / PMD::y(scale)
                         };
 
                         if (PMD::x(sourcePos) < PMD::x(shearRect) || PMD::x(sourcePos) >= PMD::x(shearRect) + PMD::width(shearRect) ||

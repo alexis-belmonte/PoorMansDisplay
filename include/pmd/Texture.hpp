@@ -41,7 +41,7 @@ namespace PMD
         }
 
         void copy(const Texture &source, Vector2u position = {0, 0});
-        void blit(const Texture &source, Vector2f position, Vector2f scale = {1.0, 1.0}, double angle = 0.0, Rectangle2u shearRect = {0u, 0u, ~0u, ~0u});
+        void blit(const Texture &source, Vector2f position, Vector2f scale = {1.0, 1.0}, double angle = 0.0, Vector2f center = {0.0, 0.0}, Rectangle2u shearRect = {0u, 0u, ~0u, ~0u});
 
         void negate();
 
