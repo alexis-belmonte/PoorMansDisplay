@@ -234,8 +234,8 @@ namespace PMD
                             }
 
                             case Texture::Filtering::LINEAR: {
-                                double fracX = PMD::x(position) - std::floor(PMD::x(position));
-                                double fracY = PMD::y(position) - std::floor(PMD::y(position));
+                                double fracX = x - std::floor(x);
+                                double fracY = y - std::floor(y);
 
                                 for (const auto &[position, frac] : std::vector<std::pair<Vector2f, double>>{
                                     {Vector2f{std::floor(x), std::floor(y)}, (1.0 - fracX) * (1.0 - fracY)},
