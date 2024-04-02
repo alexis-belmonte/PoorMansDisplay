@@ -128,7 +128,7 @@ namespace PMD
             {PMD::width(shearRect) * PMD::x(scale), PMD::height(shearRect) * PMD::y(scale)}
         }) {
             Vector2f rotatedPoint = {
-                (PMD::x(point) - PMD::x(center)) * cosThetha - (PMD::y(point) - PMD::y(center))* sinThetha,
+                (PMD::x(point) - PMD::x(center)) * cosThetha - (PMD::y(point) - PMD::y(center)) * sinThetha,
                 (PMD::x(point) - PMD::x(center)) * sinThetha + (PMD::y(point) - PMD::y(center)) * cosThetha
             };
 
@@ -167,8 +167,8 @@ namespace PMD
                         };
 
                         sourcePos = {
-                            PMD::x(shearRect) + PMD::x(sourcePos) * std::cos(thetha) + PMD::y(sourcePos) * std::sin(thetha) + PMD::x(center) / PMD::x(scale),
-                            PMD::y(shearRect) - PMD::x(sourcePos) * std::sin(thetha) + PMD::y(sourcePos) * std::cos(thetha) + PMD::y(center) / PMD::y(scale)
+                            PMD::x(shearRect) + PMD::x(sourcePos) * cosThetha + PMD::y(sourcePos) * sinThetha + PMD::x(center) / PMD::x(scale),
+                            PMD::y(shearRect) - PMD::x(sourcePos) * sinThetha + PMD::y(sourcePos) * cosThetha + PMD::y(center) / PMD::y(scale)
                         };
                         
                         Color sourceColor;
