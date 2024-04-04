@@ -14,14 +14,10 @@ namespace PMD
     {
         if (::ioctl(fd, TIOCEXCL, 0) < 0)
             throw std::runtime_error("Failed to set exclusive mode on the terminal");
-
-        this->pushContext();
     }
 
     DisplayController::~DisplayController()
     {
-        this->popContext();
-
         ::ioctl(this->_fd, TIOCNXCL, 0);
         ::close(this->_fd);
     }
@@ -55,7 +51,7 @@ namespace PMD
         ::termios &context = this->_ttyContext.back();
         updaterCallback(context);
 
-        if (::tcsetattr(this->_fd, TCSANOW, &context))
+        if (::tcsetattr(this->_fd, TCSANOW, &context) != 0)
             throw std::runtime_error("Failed to update terminal context");
     }
 
