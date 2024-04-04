@@ -23,7 +23,7 @@ namespace PMD
             {
                 int fd;
 
-                if ((fd = ::open(target.c_str(), O_RDWR)) < 0)
+                if ((fd = ::open(target.c_str(), O_RDWR | O_NONBLOCK)) < 0)
                     throw std::runtime_error(
                         std::format("Failed to open display target '{}': {}", target, ::strerror(errno))
                     );
