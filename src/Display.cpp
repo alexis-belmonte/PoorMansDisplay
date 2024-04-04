@@ -37,6 +37,7 @@ namespace PMD
         this->_controller.setCanonical(false);
 
         this->sendCommand(EscapeSequence::FLIP_SCREEN_ALTERNATE);
+
         this->sendCommand(EscapeSequence::HIDE_CURSOR_CARET);
         this->sendCommand(EscapeSequence::DISABLE_AUTOWRAP);
 
@@ -47,6 +48,9 @@ namespace PMD
 
     Display::~Display()
     {
+        this->sendCommand(EscapeSequence::SHOW_CURSOR_CARET);
+        this->sendCommand(EscapeSequence::ENABLE_AUTOWRAP);
+
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
         this->sendCommand(EscapeSequence::FLIP_SCREEN_NORMAL);
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
