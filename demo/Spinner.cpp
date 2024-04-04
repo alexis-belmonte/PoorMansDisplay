@@ -23,6 +23,15 @@ int main(void)
     };
     ::size_t spinnerTextureIndex = 0;
 
+    spinnerTexture.access([&spinnerTexture](PMD::Color *contents) {
+        PMD::Vector2u textureSize = spinnerTexture.getSize();
+        ::size_t textureArraySize = PMD::x(textureSize) * PMD::y(textureSize);
+
+        for (::size_t i = 0; i < textureArraySize; i++) {
+            contents[i].c.a = 127;
+        }
+    });
+
     display.setWindowTitle("Spinner/Shear Rect Demo");
 
     framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
@@ -42,14 +51,14 @@ int main(void)
         );
 
         framebuffer.clear(127, 0, 0);
-        framebuffer.blit(spinnerTexture, {50, 50}, {1.2, 1.2}, i, {0, 0}, spinnerTextureRects.at(spinnerTextureIndex));
+        framebuffer.blit(spinnerTexture, {50, 50}, {1.2, 1.2}, i, {16, 16}, spinnerTextureRects.at(spinnerTextureIndex));
 
         spinnerTextureIndex = ++spinnerTextureIndex % spinnerTextureRects.size();
         
         display.present();
 
-        std::this_thread::sleep_for(60ms);
-        i += 4;
+        std::this_thread::sleep_for(20ms);
+        i += 0.08;
     }
 
     return 0;

@@ -245,7 +245,8 @@ namespace PMD
                                         PMD::x(position) + (PMD::x(targetSize) * PMD::y(position))
                                     )];
 
-                                    *target = Color::lerp(*target, sourceColor, frac);
+                                    // FIXME: Not correct, but it's a start...
+                                    *target = Color::lerp(*target, sourceColor, frac * 2.0);
                                 }
 
                                 break;
