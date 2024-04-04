@@ -23,7 +23,7 @@ namespace PMD
             {
                 int fd;
 
-                if ((fd = ::open(target.c_str(), O_RDWR | O_NONBLOCK)) < 0)
+                if ((fd = ::open(target.c_str(), O_RDWR)) < 0)
                     throw std::runtime_error(
                         std::format("Failed to open display target '{}': {}", target, ::strerror(errno))
                     );
@@ -54,6 +54,9 @@ namespace PMD
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
         this->sendCommand(EscapeSequence::FLIP_SCREEN_NORMAL);
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
+
+        this->_controller.setInputEcho(true);
+        this->_controller.setCanonical(true);
 
         DisplayInstanceManager::remove(this);
     }
