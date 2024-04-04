@@ -162,10 +162,10 @@ namespace PMD
                 Vector2u size = this->_framebuffer->getSize();
                 Vector2u currPos{~0, ~0};
 
-                for (::size_t y = 0; y < std::get<1>(size); y += 2) {
-                    for (::size_t x = 0; x < std::get<0>(size); x++) {
-                        size_t i1 =  y      * std::get<0>(size) + x;
-                        size_t i2 = (y + 1) * std::get<0>(size) + x;
+                for (::size_t y = 0; y < PMD::y(size); y += 2) {
+                    for (::size_t x = 0; x < PMD::x(size); x++) {
+                        size_t i1 =  y      * PMD::x(size) + x;
+                        size_t i2 = (y + 1) * PMD::x(size) + x;
 
                         if (!this->_framebufferRedrawRequested &&
                             !(mask[i1].v ^ contents[i1].v) && !(mask[i2].v ^ contents[i2].v))

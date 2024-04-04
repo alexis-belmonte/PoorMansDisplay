@@ -190,10 +190,8 @@ namespace PMD
                                 #define SOURCE_OR_TARGET(X, Y) \
                                    (X >= PMD::x(shearRect) && X < PMD::x(shearRect) + PMD::width(shearRect)  && X < PMD::x(sourceSize) && \
                                     Y >= PMD::y(shearRect) && Y < PMD::y(shearRect) + PMD::height(shearRect) && Y < PMD::y(sourceSize)) \
-                                      ? sourceContents[ \
-                                            static_cast<::size_t>((Y) * PMD::x(sourceSize) + (X)) \
-                                        ] \
-                                      : Color{0, 0, 0, 255}
+                                      ? sourceContents[static_cast<::size_t>((Y) * PMD::x(sourceSize) + (X))] \
+                                      : Color{0, 0, 0, 0}
 
                                 Color hColor = Color::lerp(
                                     SOURCE_OR_TARGET(std::floor(PMD::x(sourcePos)), std::floor(PMD::y(sourcePos))),
@@ -209,11 +207,7 @@ namespace PMD
 
                                 #undef SOURCE_OR_TARGET
 
-                                sourceColor = Color::lerp(
-                                    hColor,
-                                    vColor,
-                                    PMD::y(sourcePos) - std::floor(PMD::y(sourcePos))
-                                );
+                                sourceColor = Color::lerp(hColor, vColor, 0.5);
 
                                 break;
                             }
@@ -229,7 +223,7 @@ namespace PMD
                                     std::floor(x) + (PMD::x(targetSize) * std::floor(y))
                                 )];
 
-                                *target = Color::blend(*target, sourceColor, 1.0);
+                                *target = Color::lerp(*target, sourceColor, 1.0);
                                 break;
                             }
 
@@ -251,7 +245,7 @@ namespace PMD
                                         PMD::x(position) + (PMD::x(targetSize) * PMD::y(position))
                                     )];
 
-                                    *target = Color::blend(*target, sourceColor, frac);
+                                    *target = Color::lerp(*target, sourceColor, frac);
                                 }
 
                                 break;

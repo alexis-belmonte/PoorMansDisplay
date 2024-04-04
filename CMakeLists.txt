@@ -8,6 +8,8 @@ project(
 
 set(CMAKE_CXX_STANDARD 20)
 
+string(APPEND CMAKE_CXX_FLAGS_RELEASE " -march=native -flto")
+
 set(PMD_SOURCE_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(PMD_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(PMD_DEMO_DIR    "${CMAKE_CURRENT_SOURCE_DIR}/demo")

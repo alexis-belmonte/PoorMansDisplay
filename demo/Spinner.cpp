@@ -41,7 +41,7 @@ int main(void)
             )
         );
 
-        framebuffer.clear();
+        framebuffer.clear(127, 0, 0);
         framebuffer.blit(spinnerTexture, {50, 50}, {1.2, 1.2}, i, {0, 0}, spinnerTextureRects.at(spinnerTextureIndex));
 
         spinnerTextureIndex = ++spinnerTextureIndex % spinnerTextureRects.size();

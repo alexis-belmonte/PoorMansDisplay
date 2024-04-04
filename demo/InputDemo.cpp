@@ -72,7 +72,7 @@ int main(void)
             (PMD::y(redSquarePos) + (down - up) * 0.25)
         };
 
-        framebuffer.clear(127, 127, 127, 127);
+        framebuffer.clear(127, 127, 127);
         framebuffer.blit(redSquare, redSquarePos);
 
         display.present();
