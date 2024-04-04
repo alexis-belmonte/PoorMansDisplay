@@ -35,6 +35,9 @@ int main(void)
                     }
                     if (event.key == 'a')
                         redSquare.clear(255, 0, 0, 127);
+                    if (event.key == '\n')
+                        redSquare.clear(0, 255, 0, 127);
+
                     if (event.key == 'f')
                         framebuffer.setFiltering(PMD::Texture::Filtering::LINEAR);
                     if (event.key == 'g')
@@ -53,6 +56,8 @@ int main(void)
             PMD::EventQueue::Handler<PMD::KeyUpEvent>(
                 [&](const PMD::KeyUpEvent &event) {
                     if (event.key == 'a')
+                        redSquare.clear(0, 0, 0, 127);
+                    if (event.key == '\n')
                         redSquare.clear(0, 0, 0, 127);
 
                     if (event.key == 'i')

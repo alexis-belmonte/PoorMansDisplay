@@ -172,18 +172,18 @@ namespace PMD
                             continue;
 
                         if (PMD::x(currPos) != x || PMD::y(currPos) != y / 2) {
-                            commandStream << std::format(EscapeSequence::SET_CURSOR_POSITION, 1 + y / 2, 1 + x);
+                            commandStream << "\e[" << (1 + y / 2) << ";" << (1 + x) << "H";
                             currPos = {x, y / 2};
                         }
 
-                        commandStream << std::format(EscapeSequence::SET_RGB_FGCOLOR,
-                                             contents[i1].c.r,
-                                             contents[i1].c.g,
-                                             contents[i1].c.b)
-                                      << std::format(EscapeSequence::SET_RGB_BGCOLOR,
-                                             contents[i2].c.r,
-                                             contents[i2].c.g,
-                                             contents[i2].c.b)
+                        commandStream << "\e[38;2;" <<
+                                             static_cast<int>(contents[i1].c.r) << ";" <<
+                                             static_cast<int>(contents[i1].c.g) << ";" <<
+                                             static_cast<int>(contents[i1].c.b) << "m"
+                                      << "\e[48;2;" <<
+                                             static_cast<int>(contents[i2].c.r) << ";" <<
+                                             static_cast<int>(contents[i2].c.g) << ";" <<
+                                             static_cast<int>(contents[i2].c.b) << "m"
                                       << "▀";
                         
                         currPos = {PMD::x(currPos) + 1, PMD::y(currPos)};
