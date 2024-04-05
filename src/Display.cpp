@@ -33,8 +33,6 @@ namespace PMD
         _controller(this->_fd),
         _inputManager(this->_eventQueue)
     {
-        this->_controller.pushContext();
-
         this->_controller.setInputEcho(false);
         this->_controller.setCanonical(false);
 
@@ -56,8 +54,6 @@ namespace PMD
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
         this->sendCommand(EscapeSequence::FLIP_SCREEN_NORMAL);
         this->sendCommand(EscapeSequence::RESET_TERMINAL);
-
-        this->_controller.popContext();
 
         DisplayInstanceManager::remove(this);
     }

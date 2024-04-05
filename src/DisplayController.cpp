@@ -14,10 +14,14 @@ namespace PMD
     {
         if (::ioctl(fd, TIOCEXCL, 0) < 0)
             throw std::runtime_error("Failed to set exclusive mode on the terminal");
+
+        this->pushContext();
     }
 
     DisplayController::~DisplayController()
     {
+        this->popContext();
+
         ::ioctl(this->_fd, TIOCNXCL, 0);
         ::close(this->_fd);
     }
@@ -36,19 +40,19 @@ namespace PMD
         if (this->_ttyContext.empty())
             throw std::runtime_error("No terminal context to pop");
 
-        ::termios context = this->_ttyContext.back();
-        this->_ttyContext.pop_back();
+        ::termios &context = this->_ttyContext.back();
 
         if (::tcsetattr(this->_fd, TCSANOW, &context) != 0)
             throw std::runtime_error("Failed to restore terminal context from stack");
+        
+        this->_ttyContext.pop_back();
     }
     
     void DisplayController::updateContext(std::function<void(::termios &)> &&updaterCallback)
     {
-        if (this->_ttyContext.empty())
-            throw std::runtime_error("No terminal context in the stack, cannot continue");
-
-        ::termios &context = this->_ttyContext.back();
+        ::termios context;
+        if (::tcgetattr(this->_fd, &context) != 0)
+            throw std::runtime_error("Failed to get terminal context");
         updaterCallback(context);
 
         if (::tcsetattr(this->_fd, TCSANOW, &context) != 0)
