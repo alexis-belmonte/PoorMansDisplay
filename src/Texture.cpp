@@ -24,8 +24,6 @@ namespace PMD
         if (size == this->_size)
             return;
 
-        this->_size = size;
-
         std::unique_ptr<Color[]> newContents(
             std::make_unique_for_overwrite<Color[]>(PMD::x(size) * PMD::y(size))
         );
@@ -35,6 +33,7 @@ namespace PMD
                 newContents[i] = contents[i];
         });
 
+        this->_size = size;
         this->_contents = std::move(newContents);
     }
     
